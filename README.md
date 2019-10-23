@@ -5,7 +5,7 @@ https://www.youtube.com/channel/UC8A0M0eDttdB11MHxX58vXQ/videos
 
 # Participant :
 
-  * Armant Prevot
+  * Armand Prevot
   * Arthur Fontaine
   * Steven Bouche
   
