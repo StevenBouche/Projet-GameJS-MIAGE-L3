@@ -2,7 +2,7 @@
 
 Jeux platforme JS de type Mario par exemple
 https://www.youtube.com/channel/UC8A0M0eDttdB11MHxX58vXQ/videos
-
+Conception : https://umlgameprog.phtools.fr/
 # Participant :
 
   * Armand Prevot
