@@ -4,9 +4,9 @@ Jeux platforme JS de type Mario par exemple
 
 # Participant :
 
-  *Armant Prevot
-  *Arthur Fontaine
-  *Steven Bouche
+  * Armant Prevot
+  * Arthur Fontaine
+  * Steven Bouche
 
 commit sur l'issue => #idIssue   
 
