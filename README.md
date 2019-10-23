@@ -1,14 +1,12 @@
-# JSProject
+# JSProject Mario
 
 Jeux platforme JS de type Mario par exemple
 
-Participant :
+# Participant :
 
-1.Armant Prevot
-
-2.Arthur Fontaine
-
-3.Steven Bouche
+  *Armant Prevot
+  *Arthur Fontaine
+  *Steven Bouche
 
 commit sur l'issue => #idIssue   
 
