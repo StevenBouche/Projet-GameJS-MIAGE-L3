@@ -16,12 +16,8 @@ export default class Player extends MobileElement {
         var state = kbManager.getState();
         this.update(dT,state);
         var position = this.getPosition();
-       
-      //  console.log(position.x+""+position.y+""+this.width+""+this.height)
         ctx.fillStyle = this.color;
         ctx.fillRect(position.x, position.y, this.width, this.height);
     }
-
-    
 
 }
