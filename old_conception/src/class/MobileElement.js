@@ -5,7 +5,7 @@ export default class ElementMobile extends Element {
 
     constructor(x,y){
         super(x,y);
-        this.speed = 100;
+        this.speed = 200;
         this.direction = Direction.NONE;
         this.directionProps = Direction.properties[this.direction];
     }

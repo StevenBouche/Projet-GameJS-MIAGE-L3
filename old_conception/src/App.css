@@ -1,5 +1,8 @@
+
+
 .App {
   text-align: center;
+  position: absolute;
 }
 
 .App-logo {
@@ -23,13 +26,11 @@
 
 #myCanvas {
   border: 0px solid;
-  background-color: lightGrey;
+  background-color: black;
+  width: 100%;
+  height: 100%;
   display: block;
-  margin: 0 auto;
-  margin-top: 5%;
+ 
 }
 
-img {
-  margin : 2% 2% 2% 2%;
-}
 
