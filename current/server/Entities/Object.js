@@ -1,15 +1,15 @@
 class Object {
-  constructor(id, x, y, speed, dir) {
+  constructor(id, x, y, speed) {
     this.id = id;
     this.x = x;
     this.y = y;
-    this.direction = dir;
+    this.direction = {vx: 0, vy: 0};
     this.speed = speed;
   }
 
   update(dt) {
-    this.x += dt * this.speed * Math.sin(this.direction);
-    this.y -= dt * this.speed * Math.cos(this.direction);
+    this.x += dt * this.speed * this.direction.vx;
+    this.y -= dt * this.speed * this.direction.vy;
   }
 
   distanceTo(object) {

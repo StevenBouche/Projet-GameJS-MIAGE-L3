@@ -19,4 +19,12 @@ module.exports = Object.freeze({
     INPUT: 'input',
     GAME_OVER: 'dead',
   },
+
+  INPUT: {
+    N: {vx: 0, vy: 1}, // canvas en -y x
+    S: {vx: 0, vy: -1},
+    E: {vx: 1, vy: 0},
+    O: {vx: -1, vy: 0},
+    STOP: {vx: 0, vy: 0}
+  }
 });

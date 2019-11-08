@@ -16,6 +16,10 @@ class GameManager{
         this.game.removePlayer(socket);
     }
 
+    handleInput(socket, dir){
+        this.game.handleInput(socket, dir);
+    }
+
 }
 
 module.exports = GameManager;

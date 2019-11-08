@@ -18,7 +18,7 @@ const io = socketio(server);
 io.on('connection', socket => {
   console.log('Player connected!', socket.id);
   socket.on(Constants.MSG_TYPES.JOIN_GAME, joinGame);
-  //socket.on(Constants.MSG_TYPES.INPUT, handleInput);
+  socket.on(Constants.MSG_TYPES.INPUT, handleInput);
   socket.on('disconnect', onDisconnect);
 });
 
@@ -29,11 +29,12 @@ function joinGame(username) {
   console.log("join game "+username)
   gameManager.addPlayer(this, username);
 }
-/*
+
 function handleInput(dir) {
-  game.handleInput(this, dir);
+  gameManager.handleInput(this, dir);
+ //console.log(dir)
 }
-*/
+
 function onDisconnect() {
   gameManager.removePlayer(this);
 }

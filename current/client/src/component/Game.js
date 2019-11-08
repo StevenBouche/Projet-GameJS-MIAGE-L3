@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 //Import Manager
 import NetworkManager from '../network/NetworkManager'
 import ViewManager from '../View/ViewManager'
+import KeyboardListener from '../manager/KeyboardListener'
 
 var equal = require('deep-equal');
 
@@ -16,7 +17,8 @@ export default class Game extends Component{
 
     state = {
         networkManager: undefined,
-        viewManager: undefined
+        viewManager: undefined,
+        keyboardListener: undefined
     }
 
     componentDidMount(){
@@ -26,10 +28,19 @@ export default class Game extends Component{
            });
        });  
 
+       this.setState({keyboardListener: new KeyboardListener()}, () => {
+            this.state.keyboardListener.addObserver(this);
+       });
+
     }
 
     componentDidUpdate(){
        
+    }
+
+    updateInput(data){
+        console.log(data)
+        this.state.networkManager.updateInput(data);
     }
 
     render(){

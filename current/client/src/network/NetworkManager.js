@@ -13,6 +13,8 @@ class NetworkManager{
     constructor(onGameOver){
       this.state = {};
       this.socket = io(`ws://192.168.1.20:3000`, { reconnection: false });
+      this.firstTimeServer = 0;
+      this.gameStart = 0;
       this.connectedPromise = new Promise(resolve => {
           this.socket.on('connect', () => { 
             console.log('Connected to server!');
@@ -26,13 +28,17 @@ class NetworkManager{
       this.socket.emit(Constants.MSG_TYPES.JOIN_GAME, username);
     };
 
-    updateInput(){
-      throttle(20, dir => { this.socket.emit(Constants.MSG_TYPES.INPUT, dir);});
+    updateInput(dir){
+      this.socket.emit(Constants.MSG_TYPES.INPUT, dir);
     };
+/*
+    currentServerTime() {
+      return firstServerTimestamp + (Date.now() - gameStart) - RENDER_DELAY;
+    }*/
 
     gameUpdate(update){
       this.state = update;
-      console.log(this.state);
+      //console.log(this.state);
     }
 
     connect = onGameOver => (
@@ -50,28 +56,10 @@ class NetworkManager{
     );
     
     getCurrentState(){
-      console.log("return this state "+this.state)
+  //    console.log("return this state "+this.state)
         return this.state;
     }
 
 }
 
 export default NetworkManager
-
-/*
-export const connect = onGameOver => (
-  connectedPromise.then(() => {
-    // Register callbacks
-    socket.on(Constants.MSG_TYPES.GAME_UPDATE, processGameUpdate);
-    socket.on(Constants.MSG_TYPES.GAME_OVER, onGameOver);
-    socket.on('disconnect', () => {
-      console.log('Disconnected from server.');
-      document.getElementById('disconnect-modal').classList.remove('hidden');
-      document.getElementById('reconnect-button').onclick = () => {
-        window.location.reload();
-      };
-    });
-  })
-);
-*/
-

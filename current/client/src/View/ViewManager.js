@@ -70,7 +70,7 @@ class ViewManager{
 
     renderPlayer(me, player) {
         const { x, y, direction } = player;
-        console.log(player)
+      //  console.log(player)
         const canvasX = this.canvas.width / 2 + x - me.x;
         const canvasY = this.canvas.height / 2 + y - me.y;
       

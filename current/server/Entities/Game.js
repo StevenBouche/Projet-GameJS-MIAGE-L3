@@ -6,7 +6,6 @@ class Game {
   constructor() {
     this.sockets = {};
     this.players = {};
-    this.bullets = [];
     this.lastUpdateTime = Date.now();
     this.shouldSendUpdate = false;
    /* setInterval(this.update.bind(this), );*/
@@ -41,24 +40,11 @@ class Game {
     // Update each player
     Object.keys(this.sockets).forEach(playerID => {
       const player = this.players[playerID];
-      const newBullet = player.update(dt);
-      if (newBullet) {
-        this.bullets.push(newBullet);
-      }
+      player.update(dt);
     });
-
-    // Apply collisions, give players score for hitting bullets
-    /*
-    const destroyedBullets = applyCollisions(Object.values(this.players), this.bullets);
-    destroyedBullets.forEach(b => {
-      if (this.players[b.parentID]) {
-        this.players[b.parentID].onDealtDamage();
-      }
-    });
-    this.bullets = this.bullets.filter(bullet => !destroyedBullets.includes(bullet));
-*/
 
     // Check if any players are dead
+    /*
     Object.keys(this.sockets).forEach(playerID => {
       const socket = this.sockets[playerID];
       const player = this.players[playerID];
@@ -67,7 +53,7 @@ class Game {
         this.removePlayer(socket);
       }
     });
-
+*/
     // Send a game update to each player every other time
     if (this.shouldSendUpdate) {
       const leaderboard = this.getLeaderboard();
