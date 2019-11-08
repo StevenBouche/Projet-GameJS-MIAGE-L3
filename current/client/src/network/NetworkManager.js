@@ -38,7 +38,7 @@ class NetworkManager{
 
     gameUpdate(update){
       this.state = update;
-      //console.log(this.state);
+      console.log(this.state);
     }
 
     connect = onGameOver => (

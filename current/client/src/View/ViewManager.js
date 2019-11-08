@@ -1,6 +1,7 @@
 import { debounce } from 'throttle-debounce';
 const Constants = require('../shared/constants');
-const { MAP_SIZE } = Constants;
+const { MAP_SIZE, MAP_TILE } = Constants;
+var equal = require('deep-equal');
 
 class ViewManager{
 
@@ -13,7 +14,7 @@ class ViewManager{
         this.setCanvasDimensions();
         this.networkManager = getstate;
         window.addEventListener('resize', debounce(40, this.setCanvasDimensions.bind(this)));
-        this.renderInterval = setInterval(this.renderMainMenu.bind(this), 1000 / 60);
+      
 
 
         this.playMenu.classList.remove('hiddeSn');
@@ -27,6 +28,10 @@ class ViewManager{
             this.startRendering();
            // this.setLeaderboardHidden(false);
         };
+
+        this.renderGameOrNot = false;
+
+        this.renderInterval = requestAnimationFrame(this.renderMainMenu.bind(this));//setInterval(this.renderMainMenu.bind(this), 1000 / 60);
     }
 
     setCanvasDimensions() {
@@ -42,31 +47,25 @@ class ViewManager{
         this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
-    render() {
-        const { me, others} = this.networkManager.getCurrentState();
-     //   console.log(me)
-        if (!me) {
-          return;
-        }
-      
-        // Draw background
-        this.renderBackground();
-      
-        // Draw boundaries
-        this.context.strokeStyle = 'black';
-        this.context.lineWidth = 1;
-        this.context.strokeRect(this.canvas.width / 2 - me.x, this.canvas.height / 2 - me.y, MAP_SIZE, MAP_SIZE);
-      //  console.log(me);
-        // Draw all players
-        this.renderPlayer(me, me);
-        
-     /*   for(var i = 0; i < others.length; i++){
-            this.renderPlayer({x: 0, y:0},others[i]);
-        }*/
-        others.forEach(this.renderPlayer.bind(this).bind(null, me));
-    }
-
-   
+   renderMap(map,me){
+      // Draw boundaries
+      this.context.strokeStyle = 'black';
+      this.context.lineWidth = 1;
+      var topLeftMap = {x: this.canvas.width / 2 - me.x, y: this.canvas.height / 2 - me.y};
+      this.context.strokeRect(topLeftMap.x, topLeftMap.y, MAP_SIZE, MAP_SIZE);
+      this.context.save();
+      map.forEach( (element) => {
+        element.forEach((caseMap) => {
+          this.context.beginPath();
+                this.context.strokeStyle ="green";
+                this.context.fillStyle ="blue";
+                this.context.rect(topLeftMap.x+caseMap.x-Constants.MAP_TILE/2, topLeftMap.y+caseMap.y-Constants.MAP_TILE/2, Constants.MAP_TILE, Constants.MAP_TILE);
+                this.context.fill();
+                this.context.stroke(); 
+        })
+      })
+      this.context.restore();
+   }
 
     renderPlayer(me, player) {
         const { x, y, direction } = player;
@@ -76,10 +75,21 @@ class ViewManager{
       
         // Draw ship
         this.context.save();
-        this.context.fillStyle = 'red';
+          var r = 255*Math.random()|0,
+              g = 255*Math.random()|0,
+              b = 255*Math.random()|0;
+
+        this.context.fillStyle='rgb(' + r + ',' + g + ',' + b + ')';
+        this.context.translate(canvasX, canvasY);
+        this.context.beginPath();
+        this.context.arc( 0, 0, Constants.MAP_TILE/2, 0, 2*Math.PI, true);
+        this.context.fill();
+        this.context.stroke();
+  
+       /* this.context.fillStyle = 'red';
         this.context.translate(canvasX, canvasY);
         this.context.rotate(direction);
-        this.context.fillRect(-20, -20, 40, 40);
+        this.context.fillRect(-Constants.MAP_TILE/2, -Constants.MAP_TILE/2, Constants.MAP_TILE, Constants.MAP_TILE);*/
         this.context.restore();
       }
 
@@ -88,22 +98,42 @@ class ViewManager{
         const x = MAP_SIZE / 2 + 800 * Math.cos(t);
         const y = MAP_SIZE / 2 + 800 * Math.sin(t);
         this.renderBackground();
+      //  this.renderInterval = requestAnimationFrame(this.renderMainMenu.bind(this));
+      }
+
+      render() {
+        var state = this.networkManager.getCurrentState();
+        const { me, others, map} = state;
+      //   console.log(me)
+        if (!me && !map) {
+          return;
+        }
+        this.renderBackground();
+        this.renderMap(map,me);
+        this.renderPlayer(me, me);
+        others.forEach(this.renderPlayer.bind(this).bind(null, me));
+      //  this.renderInterval = requestAnimationFrame(this.render.bind(this));
       }
       
       // Replaces main menu rendering with game rendering.
       startRendering() {
-        clearInterval(this.renderInterval);
+        cancelAnimationFrame(this.renderInterval)
+        this.renderInterval = requestAnimationFrame(this.render.bind(this));
+       // clearInterval(this.renderInterval);
+       // this.renderGameOrNot = true;
+        //this.render();
         this.renderInterval = setInterval(this.render.bind(this), 1000 / 60);
       }
       
       // Replaces game rendering with main menu rendering.
       stopRendering() {
-        clearInterval(this.renderInterval);
-        this.renderInterval = setInterval(this.renderMainMenu.bind(this), 1000 / 60);
+        //clearInterval(this.renderInterval);
+        cancelAnimationFrame(this.renderInterval)
+        this.renderInterval = requestAnimationFrame(this.renderMainMenu.bind(this));
+      //  this.renderGameOrNot = false;
+       // this.renderInterval = setInterval(this.renderMainMenu.bind(this), 1000 / 60);
       }
       
-
-
 }
 
 export default ViewManager;

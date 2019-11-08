@@ -1,18 +1,11 @@
 module.exports = Object.freeze({
   PLAYER_RADIUS: 20,
   PLAYER_MAX_HP: 100,
-  PLAYER_SPEED: 400,
-  PLAYER_FIRE_COOLDOWN: 0.25,
-
-  BULLET_RADIUS: 3,
-  BULLET_SPEED: 800,
-  BULLET_DAMAGE: 10,
-
-  SCORE_BULLET_HIT: 20,
+  PLAYER_SPEED: 200,
   SCORE_PER_SECOND: 1,
 
-  MAP_SIZE: 300,
-  MAP_TILE: 20,
+  MAP_SIZE: 900,
+  MAP_TILE: 50,
   MSG_TYPES: {
     JOIN_GAME: 'join_game',
     GAME_UPDATE: 'update',
@@ -26,5 +19,11 @@ module.exports = Object.freeze({
     E: {vx: 1, vy: 0},
     O: {vx: -1, vy: 0},
     STOP: {vx: 0, vy: 0}
+  },
+
+  TYPECASE: {
+    VIDE: 0,
+    PATH: 1,
+    AREA: 2
   }
 });

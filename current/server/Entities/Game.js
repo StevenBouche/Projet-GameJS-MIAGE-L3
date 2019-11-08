@@ -1,3 +1,4 @@
+const Map = require('./Map');
 const Player = require('./player');
 //const applyCollisions = require('./collisions');
 const Constants = require('../shared/constants');
@@ -6,17 +7,17 @@ class Game {
   constructor() {
     this.sockets = {};
     this.players = {};
+    this.map = new Map();
     this.lastUpdateTime = Date.now();
     this.shouldSendUpdate = false;
-   /* setInterval(this.update.bind(this), );*/
   }
 
   addPlayer(socket, username) {
     this.sockets[socket.id] = socket;
     // Generate a position to start this player at.
-    const x = Constants.MAP_SIZE * (0.25 + Math.random() * 0.5);
-    const y = Constants.MAP_SIZE * (0.25 + Math.random() * 0.5);
-    this.players[socket.id] = new Player(socket.id, username, x, y);
+    var caseM = this.map.getRandomCaseMap();
+    const xy = this.map.getXYCenterfromCase(caseM.x,caseM.y);
+    this.players[socket.id] = new Player(socket.id, username, xy.x, xy.y,caseM.x,caseM.y);
   }
 
   removePlayer(socket) {
@@ -26,13 +27,12 @@ class Game {
 
   handleInput(socket, dir) {
     if (this.players[socket.id]) {
-      this.players[socket.id].setDirection(dir);
+     // this.players[socket.id].setDirection(dir);
+      this.players[socket.id].updateState(dir);
     }
   }
 
   update() { 
-   // console.log("Server tick")
-    // Calculate time elapsed
     const now = Date.now();
     const dt = (now - this.lastUpdateTime) / 1000;
     this.lastUpdateTime = now;
@@ -43,17 +43,6 @@ class Game {
       player.update(dt);
     });
 
-    // Check if any players are dead
-    /*
-    Object.keys(this.sockets).forEach(playerID => {
-      const socket = this.sockets[playerID];
-      const player = this.players[playerID];
-      if (player.hp <= 0) {
-        socket.emit(Constants.MSG_TYPES.GAME_OVER);
-        this.removePlayer(socket);
-      }
-    });
-*/
     // Send a game update to each player every other time
     if (this.shouldSendUpdate) {
       const leaderboard = this.getLeaderboard();
@@ -82,6 +71,7 @@ class Game {
     return {
       t: Date.now(),
       me: player.serializeForUpdate(),
+      map: this.map.map,
       others: nearbyPlayers.map(p => p.serializeForUpdate()),
       leaderboard,
     };
