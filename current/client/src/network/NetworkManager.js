@@ -38,13 +38,13 @@ class NetworkManager{
 
     gameUpdate(update){
       this.state = update;
-      console.log(this.state);
+      //console.log(this.state);
     }
 
     connect = onGameOver => (
       this.connectedPromise.then(() => {
       this.socket.on(Constants.MSG_TYPES.GAME_UPDATE, this.gameUpdate.bind(this));
-       // socket.on(Constants.MSG_TYPES.GAME_OVER, onGameOver);
+      this.socket.on(Constants.MSG_TYPES.GAME_OVER, onGameOver);
         this.socket.on('disconnect', () => {
           console.log('Disconnected from server.');
           document.getElementById('disconnect-modal').classList.remove('hidden');

@@ -6,12 +6,6 @@ import KeyboardListener from '../manager/KeyboardListener'
 
 var equal = require('deep-equal');
 
-function onGameOver() {
-   // stopCapturingInput();
-   // stopRendering();
-   // playMenu.classList.remove('hidden');
-   // setLeaderboardHidden(true);
-  }
 
 export default class Game extends Component{
 
@@ -22,7 +16,7 @@ export default class Game extends Component{
     }
 
     componentDidMount(){
-       this.setState({networkManager: new NetworkManager(onGameOver)}, () => {
+       this.setState({networkManager: new NetworkManager(this.onGameOver.bind(this))}, () => {
            this.setState({viewManager: new ViewManager(this.state.networkManager)}, () => {
                this.state.viewManager.startRendering();
            });
@@ -38,6 +32,14 @@ export default class Game extends Component{
        
     }
 
+    onGameOver() {
+         //stopCapturingInput();
+         console.log("GAMEOVER")
+         this.state.viewManager.stopRendering();
+       //  playMenu.classList.remove('hidden');
+       //  setLeaderboardHidden(true);
+    }
+     
     updateInput(data){
         console.log(data)
         this.state.networkManager.updateInput(data);

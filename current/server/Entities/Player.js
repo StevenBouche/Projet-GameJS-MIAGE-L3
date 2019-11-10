@@ -7,9 +7,12 @@ class Player extends ObjectClass {
     super(id, x, y, Constants.PLAYER_SPEED);
     this.username = username;
     this.score = 0;
+    this.currentCase = {x: 0, y: 0};
     this.nextDirection = {vx: 0, vy: 0};
     this.nextCase = {x: undefined, y: undefined};
     this.spawn = {x: xCase, y: yCase}
+    var r = 255*Math.random()|0,g = 255*Math.random()|0,b = 255*Math.random()|0;
+    this.couleur = 'rgb(' + r + ',' + g + ',' + b + ')';
   }
 
   update(dt) {
@@ -41,6 +44,13 @@ class Player extends ObjectClass {
       this.direction = Constants.INPUT.STOP;
       this.switchState();
     }
+  }
+
+  setCurrentCase(current){
+    if(!equal(this.currentCase,current)) {
+      this.currentCase = current; return true;
+    }
+    return false;
   }
 
   switchState(){
@@ -79,6 +89,7 @@ class Player extends ObjectClass {
       ...(super.serializeForUpdate()),
       direction: this.direction,
       hp: this.hp,
+      color: this.couleur
     };
   }
 }

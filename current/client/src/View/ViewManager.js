@@ -3,6 +3,7 @@ const Constants = require('../shared/constants');
 const { MAP_SIZE, MAP_TILE } = Constants;
 var equal = require('deep-equal');
 
+
 class ViewManager{
 
     constructor(getstate){
@@ -14,10 +15,8 @@ class ViewManager{
         this.setCanvasDimensions();
         this.networkManager = getstate;
         window.addEventListener('resize', debounce(40, this.setCanvasDimensions.bind(this)));
-      
 
-
-        this.playMenu.classList.remove('hiddeSn');
+        this.playMenu.classList.remove('hidden');
         this.usernameInput.focus();
         this.playButton.onclick = () => {
             // Play!
@@ -30,8 +29,7 @@ class ViewManager{
         };
 
         this.renderGameOrNot = false;
-
-        this.renderInterval = requestAnimationFrame(this.renderMainMenu.bind(this));//setInterval(this.renderMainMenu.bind(this), 1000 / 60);
+        this.renderInterval = setInterval(this.renderMainMenu.bind(this), 1000 / Constants.UI_REFRESH_HZ);
     }
 
     setCanvasDimensions() {
@@ -47,24 +45,50 @@ class ViewManager{
         this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
+
    renderMap(map,me){
       // Draw boundaries
       this.context.strokeStyle = 'black';
       this.context.lineWidth = 1;
       var topLeftMap = {x: this.canvas.width / 2 - me.x, y: this.canvas.height / 2 - me.y};
       this.context.strokeRect(topLeftMap.x, topLeftMap.y, MAP_SIZE, MAP_SIZE);
-      this.context.save();
+      
       map.forEach( (element) => {
         element.forEach((caseMap) => {
-          this.context.beginPath();
-                this.context.strokeStyle ="green";
-                this.context.fillStyle ="blue";
-                this.context.rect(topLeftMap.x+caseMap.x-Constants.MAP_TILE/2, topLeftMap.y+caseMap.y-Constants.MAP_TILE/2, Constants.MAP_TILE, Constants.MAP_TILE);
-                this.context.fill();
-                this.context.stroke(); 
+          if(this.isInCamera(me,caseMap.x,caseMap.y)) {
+            this.context.save();
+            if(caseMap.type == Constants.TYPECASE.VIDE) {
+              this.context.beginPath();
+              this.context.fillStyle ='rgb(64,64,64)';
+              this.context.strokeStyle ="green";
+              this.context.rect(topLeftMap.x+caseMap.x-Constants.MAP_TILE/2, topLeftMap.y+caseMap.y-Constants.MAP_TILE/2, Constants.MAP_TILE, Constants.MAP_TILE);
+              this.context.fill();
+              this.context.stroke();
+            }
+            else if(caseMap.type == Constants.TYPECASE.PATH){  
+              this.context.beginPath();
+              this.context.fillStyle ='rgb(64,64,64)';
+              this.context.strokeStyle ="green";
+              this.context.rect(topLeftMap.x+caseMap.x-Constants.MAP_TILE/2, topLeftMap.y+caseMap.y-Constants.MAP_TILE/2, Constants.MAP_TILE, Constants.MAP_TILE);
+              this.context.fill();
+              this.context.stroke();
+              this.context.beginPath();
+              this.context.fillStyle = caseMap.color;
+              this.context.arc( topLeftMap.x+caseMap.x, topLeftMap.y+caseMap.y, Constants.MAP_TILE/4, 0, 2*Math.PI, true);
+              this.context.fill();
+              this.context.stroke();
+            }else if(caseMap.type == Constants.TYPECASE.AREA){  
+              this.context.beginPath();
+              this.context.fillStyle = caseMap.color;
+              this.context.strokeStyle ="green";
+              this.context.rect(topLeftMap.x+caseMap.x-Constants.MAP_TILE/2, topLeftMap.y+caseMap.y-Constants.MAP_TILE/2, Constants.MAP_TILE, Constants.MAP_TILE);
+              this.context.fill();
+              this.context.stroke();
+            }
+            this.context.restore();
+          }
         })
       })
-      this.context.restore();
    }
 
     renderPlayer(me, player) {
@@ -75,21 +99,12 @@ class ViewManager{
       
         // Draw ship
         this.context.save();
-          var r = 255*Math.random()|0,
-              g = 255*Math.random()|0,
-              b = 255*Math.random()|0;
-
-        this.context.fillStyle='rgb(' + r + ',' + g + ',' + b + ')';
+        this.context.fillStyle=player.color;
         this.context.translate(canvasX, canvasY);
         this.context.beginPath();
         this.context.arc( 0, 0, Constants.MAP_TILE/2, 0, 2*Math.PI, true);
         this.context.fill();
         this.context.stroke();
-  
-       /* this.context.fillStyle = 'red';
-        this.context.translate(canvasX, canvasY);
-        this.context.rotate(direction);
-        this.context.fillRect(-Constants.MAP_TILE/2, -Constants.MAP_TILE/2, Constants.MAP_TILE, Constants.MAP_TILE);*/
         this.context.restore();
       }
 
@@ -98,10 +113,10 @@ class ViewManager{
         const x = MAP_SIZE / 2 + 800 * Math.cos(t);
         const y = MAP_SIZE / 2 + 800 * Math.sin(t);
         this.renderBackground();
-      //  this.renderInterval = requestAnimationFrame(this.renderMainMenu.bind(this));
       }
 
       render() {
+       // console.log("render")
         var state = this.networkManager.getCurrentState();
         const { me, others, map} = state;
       //   console.log(me)
@@ -112,28 +127,34 @@ class ViewManager{
         this.renderMap(map,me);
         this.renderPlayer(me, me);
         others.forEach(this.renderPlayer.bind(this).bind(null, me));
-      //  this.renderInterval = requestAnimationFrame(this.render.bind(this));
       }
       
       // Replaces main menu rendering with game rendering.
       startRendering() {
-        cancelAnimationFrame(this.renderInterval)
-        this.renderInterval = requestAnimationFrame(this.render.bind(this));
-       // clearInterval(this.renderInterval);
+       
+        clearInterval(this.renderInterval);
        // this.renderGameOrNot = true;
-        //this.render();
-        this.renderInterval = setInterval(this.render.bind(this), 1000 / 60);
+       this.renderInterval = setInterval(this.render.bind(this), 1000 / Constants.UI_REFRESH_HZ);
       }
       
       // Replaces game rendering with main menu rendering.
       stopRendering() {
-        //clearInterval(this.renderInterval);
-        cancelAnimationFrame(this.renderInterval)
-        this.renderInterval = requestAnimationFrame(this.renderMainMenu.bind(this));
+        
+        clearInterval(this.renderInterval);
+      //  cancelAnimationFrame(this.renderInterval)
+      //  this.renderInterval = window.requestAnimationFrame(this.renderMainMenu.bind(this));
       //  this.renderGameOrNot = false;
-       // this.renderInterval = setInterval(this.renderMainMenu.bind(this), 1000 / 60);
+      this.playMenu.classList.remove('hidden');
+        this.renderInterval = setInterval(this.renderMainMenu.bind(this), 1000 / Constants.UI_REFRESH_HZ);
       }
       
+      isInCamera(me,x,y){
+        var bornX = this.canvas.width/2 + (this.canvas.width/2)*0.1;
+        var bornY = this.canvas.height/2 + (this.canvas.height/2)*0.1;
+        if(x > me.x+bornX  || x < me.x-bornX) return false;
+        if(y > me.y+bornY || y < me.y-bornY) return false;
+        return true;
+      }
 }
 
 export default ViewManager;

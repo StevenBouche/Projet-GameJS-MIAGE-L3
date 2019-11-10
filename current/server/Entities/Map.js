@@ -1,7 +1,7 @@
 const Constants = require('../shared/constants');
+const equal = require('deep-equal')
 
 module.exports = class Map {
-//STAGE variable
 
     constructor(){
         this.numberTile = Constants.MAP_SIZE / Constants.MAP_TILE;
@@ -20,23 +20,124 @@ module.exports = class Map {
         }
     }
 
-    getMap(){
-      
+    setCaseOfMap(x,y,value){
+        this.map[y][x].color = value.color,
+        this.map[y][x].type = value.type,
+        this.map[y][x].idPlayer = value.idPlayer;
+    }
+
+    addSpawPlayer(player){
+        var spawn = player.spawn;
+        this.map[spawn.y][spawn.x].type = Constants.TYPECASE.AREA;
+        this.map[spawn.y][spawn.x].idPlayer = player.id;
+        this.map[spawn.y][spawn.x].color = player.couleur;
     }
 
     getXYCenterfromCase(xCase,yCase){
-        
         if(xCase < 0 || xCase > this.numberTile-1 || yCase < 0 || yCase > this.numberTile-1) return {};
         var y = yCase * Constants.MAP_TILE + Constants.MAP_TILE/2;
         var x = xCase * Constants.MAP_TILE + Constants.MAP_TILE/2;
-      //  console.log(xCase,yCase,x,y)
         return {x: x, y: y};
+    }
+
+    getCaseOfXY(x,y){
+        var xc = Math.floor(x/Constants.MAP_TILE);
+        var yc = Math.floor(y/Constants.MAP_TILE);
+        return {x: xc, y: yc};
     }
 
     getRandomCaseMap(){
         var x = -1, y = -1;
         x = Math.floor(Math.random() * Math.floor(this.numberTile));
         y = Math.floor(Math.random() * Math.floor(this.numberTile));
+        //TODO tant que case is not empty
         return {x: x, y: y};
     }
+
+    delCaseOf(playerID){
+        for(var y = 0 ; y < this.map.length; y++){
+            for(var x = 0; x < this.map[y].length; x++){
+                if(this.map[y][x].idPlayer == playerID) this.map[y][x] = {type: Constants.TYPECASE.VIDE, x: this.map[y][x].x, y: this.map[y][x].y};
+            }
+        }
+    }
+
+    searchNextPathAreaX(x,y,playerid,tab){
+        if(x >= this.numberTile) return null;
+        else if(this.isCasePlayer(x,y,playerid)) return tab;
+        else {
+            var res = this.searchNextPathAreaX(x+1,y,playerid,tab);
+            if(res != null) { tab.push({x: x, y: y}); return tab;
+            } else return null; 
+        };
+    }
+
+    searchNextPathAreaY(x,y,playerid,tab){
+        if(y >= this.numberTile) return null;
+        else if(this.isCasePlayer(x,y,playerid)) return tab;
+        else {
+            var res = this.searchNextPathAreaY(x,y+1,playerid,tab);
+            if(res != null) { tab.push({x: x, y: y}); return tab;
+            } else return null; 
+        };
+    }
+
+    isCasePlayer(x,y,playerid){
+        if(x >= this.numberTile) return true;
+        if(y >= this.numberTile) return true;
+        if(!equal(this.map[y][x].type,Constants.TYPECASE.VIDE) && this.map[y][x].idPlayer === playerid) return true
+        else return false;
+    }
+
+    isCasePathPlayer(x,y,playerid){
+        if(this.map[y][x].type == Constants.TYPECASE.PATH && this.map[y][x].idPlayer === playerid) return true
+        else return false;
+    }
+
+    isCaseAreaPlayer(){
+        if(this.map[y][x].type == Constants.TYPECASE.AREA && this.map[y][x].idPlayer === playerid) return true
+        else return false;
+    }
+
+    isCasePathOtherPlayer(x,y,playerid){
+        if(this.map[y][x].type == Constants.TYPECASE.PATH && this.map[y][x].idPlayer !== playerid) return true
+        else return false;
+    }
+
+    isCaseEmpty(x,y){
+        if(this.map[y][x].type == Constants.TYPECASE.VIDE) return true
+        else return false;
+    }
+
+    pathToArea(player){
+        var tabX = new Array();
+        var tabY = new Array();
+
+        var value = {
+            color: player.couleur,
+            type: Constants.TYPECASE.AREA,
+            idPlayer: player.id
+        };
+
+        for(var y = 0 ; y < this.map.length; y++){
+            for(var x = 0; x < this.map[y].length; x++){
+                var b = this.isCasePlayer(x,y,player.id);
+                if( b && !this.isCasePlayer(x+1,y,player.id)) this.searchNextPathAreaX(x+1,y,player.id,tabX);
+                if( b && !this.isCasePlayer(x,y+1,player.id)) this.searchNextPathAreaY(x,y+1,player.id,tabY);
+                if( b ) this.setCaseOfMap(x,y,value);
+            }
+        }
+
+        
+       for(var i = 0; i < tabX.length; i++){
+           var elem = tabY.find((element) => {return element.x == tabX[i].x && element.y == tabX[i].y});
+           if(elem != undefined) this.setCaseOfMap(tabX[i].x,tabX[i].y,value);
+       }
+
+       for(var i = 0; i < tabY.length; i++){
+            var elem = tabX.find((element) => {return element.x == tabY[i].x && element.y == tabY[i].y});
+            if(elem != undefined) this.setCaseOfMap(tabY[i].x,tabY[i].y,value);
+        }
+    }
+
 }
