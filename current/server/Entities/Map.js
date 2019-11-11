@@ -54,10 +54,30 @@ module.exports = class Map {
         return {x: x, y: y};
     }
 
+    getNbAreaPlayer(playerid){
+        var cpt = 0;
+        for(var y = 0 ; y < this.map.length; y++){
+            for(var x = 0; x < this.map[y].length; x++){
+                if(this.isCaseAreaPlayer(x,y,playerid)) cpt++;
+            }
+        }
+        return cpt;
+    }
+
     delCaseOf(playerID){
         for(var y = 0 ; y < this.map.length; y++){
             for(var x = 0; x < this.map[y].length; x++){
-                if(this.map[y][x].idPlayer == playerID) this.map[y][x] = {type: Constants.TYPECASE.VIDE, x: this.map[y][x].x, y: this.map[y][x].y};
+                if(this.map[y][x].idPlayer == playerID){
+                    if(this.map[y][x].path != undefined){
+                        //AREA TO PATH OTHER PLAYER
+                        var val = {type: Constants.TYPECASE.PATH, idPlayer: this.map[y][x].path.idPlayer, color: this.map[y][x].path.color}
+                        this.setCaseOfMap(x,y,val);
+                        this.map[y][x].path = undefined;
+                    }  
+                    else this.map[y][x] = {type: Constants.TYPECASE.VIDE, x: this.map[y][x].x, y: this.map[y][x].y};
+                    
+                } // SI PAS MA CASE MAIS JAI PATH DESSUS
+                if(this.map[y][x].path != undefined && this.map[y][x].path.idPlayer == playerID) this.map[y][x].path = undefined;
             }
         }
     }
@@ -85,7 +105,11 @@ module.exports = class Map {
     isCasePlayer(x,y,playerid){
         if(x >= this.numberTile) return true;
         if(y >= this.numberTile) return true;
-        if(!equal(this.map[y][x].type,Constants.TYPECASE.VIDE) && this.map[y][x].idPlayer === playerid) return true
+        if(equal(this.map[y][x].type,Constants.TYPECASE.PATH) && this.map[y][x].idPlayer === playerid) return true
+        if(equal(this.map[y][x].type,Constants.TYPECASE.AREA) && this.map[y][x].idPlayer === playerid) return true
+        if(equal(this.map[y][x].type,Constants.TYPECASE.AREA) && this.map[y][x].idPlayer !== playerid){
+            if(this.map[y][x].path !== undefined && this.map[y][x].path.idPlayer === playerid) return true
+        }
         else return false;
     }
 
@@ -94,7 +118,7 @@ module.exports = class Map {
         else return false;
     }
 
-    isCaseAreaPlayer(){
+    isCaseAreaPlayer(x,y,playerid){
         if(this.map[y][x].type == Constants.TYPECASE.AREA && this.map[y][x].idPlayer === playerid) return true
         else return false;
     }
@@ -104,9 +128,20 @@ module.exports = class Map {
         else return false;
     }
 
+    isCaseAreaOtherPlayer(x,y,playerid){
+        if(this.map[y][x].type == Constants.TYPECASE.AREA && this.map[y][x].idPlayer !== playerid) return true
+        else return false;
+    }
+
     isCaseEmpty(x,y){
         if(this.map[y][x].type == Constants.TYPECASE.VIDE) return true
         else return false;
+    }
+
+    addPathOnArea(x,y,player){
+        if(this.map[y][x].type == Constants.TYPECASE.AREA) {
+            this.map[y][x].path = { idPlayer: player.id, type: Constants.TYPECASE.PATH, color: player.couleur};
+        }
     }
 
     pathToArea(player){
@@ -116,7 +151,8 @@ module.exports = class Map {
         var value = {
             color: player.couleur,
             type: Constants.TYPECASE.AREA,
-            idPlayer: player.id
+            idPlayer: player.id,
+            path: {}
         };
 
         for(var y = 0 ; y < this.map.length; y++){
@@ -124,7 +160,13 @@ module.exports = class Map {
                 var b = this.isCasePlayer(x,y,player.id);
                 if( b && !this.isCasePlayer(x+1,y,player.id)) this.searchNextPathAreaX(x+1,y,player.id,tabX);
                 if( b && !this.isCasePlayer(x,y+1,player.id)) this.searchNextPathAreaY(x,y+1,player.id,tabY);
-                if( b ) this.setCaseOfMap(x,y,value);
+                if( b ) {
+                    if(this.isCasePathPlayer(x,y,player.id)) this.setCaseOfMap(x,y,value);
+                    else if(this.isCaseAreaOtherPlayer(x,y,player.id) && this.map[y][x].path != undefined){
+                        this.setCaseOfMap(x,y,value);
+                        this.map[y][x].path = undefined;
+                    }
+                }
             }
         }
 

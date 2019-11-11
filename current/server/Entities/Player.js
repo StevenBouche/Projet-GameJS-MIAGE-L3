@@ -88,7 +88,7 @@ class Player extends ObjectClass {
     return {
       ...(super.serializeForUpdate()),
       direction: this.direction,
-      hp: this.hp,
+      score: this.score,
       color: this.couleur
     };
   }

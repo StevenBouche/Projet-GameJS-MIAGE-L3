@@ -1,11 +1,7 @@
 import React, { Component } from 'react';
-//Import Manager
 import NetworkManager from '../network/NetworkManager'
 import ViewManager from '../View/ViewManager'
 import KeyboardListener from '../manager/KeyboardListener'
-
-var equal = require('deep-equal');
-
 
 export default class Game extends Component{
 
@@ -47,16 +43,21 @@ export default class Game extends Component{
 
     render(){
 
-        // class="hidden" to play menu
-
         return (
             <div>
                <canvas id="game-canvas"></canvas>
-                <div id="play-menu">
+                <div id="play-menu" className="hidden">
                     <h1>.io Game</h1>
                     <hr/>
                     <input type="text" id="username-input" placeholder="Username" />
                     <button id="play-button">PLAY</button>
+                    
+                </div>
+                <div id="connexion-server" className="hidden">
+                    <h1>.io Game</h1>
+                    <hr/>
+                    <h3>Connection serveur ...</h3>
+                    <div className="loader"></div>
                 </div>
                 <div id="leaderboard" className="hidden">
                     <table>

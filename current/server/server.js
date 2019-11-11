@@ -19,6 +19,7 @@ io.on('connection', socket => {
   console.log('Player connected!', socket.id);
   socket.on(Constants.MSG_TYPES.JOIN_GAME, joinGame);
   socket.on(Constants.MSG_TYPES.INPUT, handleInput);
+  socket.on(Constants.MSG_TYPES.PING, pong)
   socket.on('disconnect', onDisconnect);
 });
 
@@ -33,6 +34,11 @@ function joinGame(username) {
 function handleInput(dir) {
   gameManager.handleInput(this, dir);
  //console.log(dir)
+}
+
+function pong(){
+  //console.log(this);
+  this.emit(Constants.MSG_TYPES.PONG)
 }
 
 function onDisconnect() {

@@ -33,25 +33,22 @@ class KeyBoardListener {
 
     keyDownHandler(event) {
 
-        if(event.keyCode == KeyboardHelper.right ) {
+        if(event.keyCode === KeyboardHelper.right ) {
            this.notifyInput(INPUT.E);
         }
-        else if(event.keyCode == KeyboardHelper.left ) {
+        else if(event.keyCode === KeyboardHelper.left ) {
             this.notifyInput(INPUT.O);
         }
-        else if(event.keyCode == KeyboardHelper.down ) {
+        else if(event.keyCode === KeyboardHelper.down ) {
             this.notifyInput(INPUT.S);
         }
-        else if(event.keyCode == KeyboardHelper.up) {
+        else if(event.keyCode === KeyboardHelper.up) {
             this.notifyInput(INPUT.N);
         }
-        else if(event.keyCode == KeyboardHelper.space) {
+        else if(event.keyCode === KeyboardHelper.space) {
             this.notifyInput(INPUT.STOP);
         }
-       // event.preventDefault();
-       console.log(event.keyCode)
     }
-
 }
 
 export default KeyBoardListener;

@@ -22,17 +22,21 @@ class Game {
     this.map.addSpawPlayer(this.players[socket.id]);
   }
 
-  removePlayer(socket) {
-    delete this.sockets[socket.id];
-    delete this.players[socket.id];
+  removePlayer(id) {
+    delete this.sockets[id];
+    delete this.players[id];
   }
 
   playerDie(playerID){
     const player = this.players[playerID];
     const socket = this.sockets[playerID];
     this.map.delCaseOf(playerID);
-    socket.emit(Constants.MSG_TYPES.GAME_OVER);
-    this.removePlayer(socket);
+    try{
+      socket.emit(Constants.MSG_TYPES.GAME_OVER);
+    } catch(error){
+
+    }
+    this.removePlayer(playerID);
   }
 
   handleInput(socket, dir) {
@@ -58,35 +62,42 @@ class Game {
         var b = player.setCurrentCase(res);
         //NEW CASE
         if(b) {
-
-        var value = {type: Constants.TYPECASE.PATH, idPlayer: playerID, color: player.couleur};
-
+          var value = {type: Constants.TYPECASE.PATH, idPlayer: playerID, color: player.couleur};
+          //si je retourne sur mon path je meurt
           if(this.map.isCasePathPlayer(res.x,res.y,player.id)) this.playerDie(player.id);
+          //si je tombe sur une case vide devient mon path
+          else if (this.map.isCaseEmpty(res.x,res.y)) this.map.setCaseOfMap(res.x,res.y,value);
+          //si c'est une case area a moi je regarde pour construire et tue si un joueur a un path dessus
+          else if (this.map.isCaseAreaPlayer(res.x,res.y,player.id)) {
+              if(this.map.map[res.y][res.x].path != undefined) this.playerDie(this.map.map[res.y][res.x].path.idPlayer);
+              this.map.pathToArea(player);
+          }
+          // si case area autre joueur j'add mon path sur son area 
+          else if (this.map.isCaseAreaOtherPlayer(res.x,res.y,player.id)) {
+            if(this.map.map[res.y][res.x].path != undefined && this.map.map[res.y][res.x].path.idPlayer == player.id) this.playerDie(player.id);
+            else this.map.addPathOnArea(res.x,res.y,player);
+          }
+          //si c'est un chemin d'un autre joueur il meurt et devient mon path
           else if(this.map.isCasePathOtherPlayer(res.x,res.y,player.id)){
             this.playerDie(this.map.map[res.y][res.x].idPlayer);
             this.map.setCaseOfMap(res.x,res.y,value);
-          } else if (this.map.isCaseEmpty(res.x,res.y)) this.map.setCaseOfMap(res.x,res.y,value);
-          else if (this.map.isCaseAreaPlayer(res.x,res.y,player.id)) this.map.pathToArea(player); // TODO NEXT
-          else if (equal(this.map.map[res.y][res.x].type,Constants.TYPECASE.AREA) && this.map.map[res.y][res.x].idPlayer != player.id){
-           
-          }
+          } 
+        }
+        if (this.players[playerID] != undefined) {
+         /* if(this.players[playerID].score == 0){
+            this.playerDie(playerID);
+          }*/
+          this.players[playerID].score = this.map.getNbAreaPlayer(playerID);
         }
       }
-      
     });
 
-    // Send a game update to each player every other time
-    if (this.shouldSendUpdate) {
-      const leaderboard = this.getLeaderboard();
-      Object.keys(this.sockets).forEach(playerID => {
-        const socket = this.sockets[playerID];
-        const player = this.players[playerID];
-        socket.emit(Constants.MSG_TYPES.GAME_UPDATE, this.createUpdate(player, leaderboard));
-      });
-      this.shouldSendUpdate = false;
-    } else {
-      this.shouldSendUpdate = true;
-    }
+    const leaderboard = this.getLeaderboard();
+    Object.keys(this.sockets).forEach(playerID => {
+      const socket = this.sockets[playerID];
+      const player = this.players[playerID];
+      socket.emit(Constants.MSG_TYPES.GAME_UPDATE, this.createUpdate(player, leaderboard));
+    });
   }
 
   getLeaderboard() {
