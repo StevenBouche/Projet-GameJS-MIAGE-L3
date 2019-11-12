@@ -16,7 +16,12 @@ class Game {
   addPlayer(socket, username) {
     this.sockets[socket.id] = socket;
     // Generate a position to start this player at.
-    var caseM = this.map.getRandomCaseMap();
+    var caseM = this.map.getRandomCaseMap(); // x & y
+
+    while (!this.map.isCaseEmpty(caseM.x, caseM.y)){
+      caseM = this.map.getRandomCaseMap();
+    }
+    
     const xy = this.map.getXYCenterfromCase(caseM.x,caseM.y);
     this.players[socket.id] = new Player(socket.id, username, xy.x, xy.y,caseM.x,caseM.y);
     this.map.addSpawPlayer(this.players[socket.id]);

@@ -3,7 +3,7 @@ import NetworkManager from '../network/NetworkManager'
 import ViewManager from '../View/ViewManager'
 import KeyboardListener from '../manager/KeyboardListener'
 
-export default class Game extends Component{
+export default class Game extends Component {
 
     state = {
         networkManager: undefined,
@@ -51,7 +51,6 @@ export default class Game extends Component{
                     <hr/>
                     <input type="text" id="username-input" placeholder="Username" />
                     <button id="play-button">PLAY</button>
-                    
                 </div>
                 <div id="connexion-server" className="hidden">
                     <h1>.io Game</h1>

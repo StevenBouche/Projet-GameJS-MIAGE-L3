@@ -5,7 +5,7 @@ class NetworkManager{
 
     constructor(onGameOver){
 
-      this.socket = io(`ws://192.168.1.20:3000`, { reconnection: false });
+      this.socket = io(`ws://localhost:3000`, { reconnection: false });
       this.firstTimeServer = 0;
       this.gameStart = 0;
       this.state = {};

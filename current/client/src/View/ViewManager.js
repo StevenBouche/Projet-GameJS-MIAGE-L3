@@ -59,7 +59,7 @@ class ViewManager{
       map.forEach( (element) => {
         element.forEach((caseMap) => {
           if(this.isInCamera(me,caseMap.x,caseMap.y)) {
-            this.context.save();
+              this.context.save();
             if(caseMap.type === Constants.TYPECASE.VIDE) {
               this.context.beginPath();
               this.context.fillStyle ='rgb(64,64,64)';
@@ -130,8 +130,8 @@ class ViewManager{
 
       render() {
         var state = this.networkManager.getCurrentState();
-        const { me, others, map} = state;
-        if (!me && !map) {return;}
+        const {me, others, map} = state;
+        if (!me || !map) {return;}
         this.renderBackground();
         this.renderMap(map,me);
         this.renderPlayer(me, me);
