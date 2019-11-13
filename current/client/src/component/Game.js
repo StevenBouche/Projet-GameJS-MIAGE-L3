@@ -59,9 +59,10 @@ export default class Game extends Component {
                     <div className="loader"></div>
                 </div>
                 <div id="leaderboard" className="hidden">
-                    <table>
+                    <table id='leaderboardTable'>
                         <thead>
                             <tr>
+                                <th>Rank</th>
                                 <th>Username</th>
                                 <th>Score</th>
                             </tr>

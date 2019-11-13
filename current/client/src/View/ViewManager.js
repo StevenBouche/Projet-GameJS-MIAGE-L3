@@ -39,17 +39,22 @@ class ViewManager{
 
     renderLeaderboard(leaderboard){
       var tbody = this.leaderboard.getElementsByTagName('tbody')[0];
-      tbody.innerHTML = ""; //Clear of the scores
+      tbody.innerHTML = ""; //Clear scores
+      var cpt = 0;
       
       leaderboard.forEach((elem) => {
         console.log(elem);
+        cpt++;
         var tr = document.createElement('tr');
+        var tdRank = document.createElement('td');
         var tdName = document.createElement('td');
         var tdScore = document.createElement('td');
 
+        tdRank.innerText = cpt;
         tdName.innerText = elem.username;
         tdScore.innerText = elem.score;
         
+        tr.appendChild(tdRank);
         tr.appendChild(tdName);
         tr.appendChild(tdScore);
         tbody.appendChild(tr);
