@@ -15,6 +15,7 @@ class ViewManager{
         this.setCanvasDimensions();
         this.networkManager = getstate;
         this.animMenu = undefined;
+        this.leaderboard = document.getElementById('leaderboard');
         window.addEventListener('resize', debounce(40, this.setCanvasDimensions.bind(this)));
 
       //  this.playMenu.classList.remove('hidden');
@@ -23,6 +24,7 @@ class ViewManager{
             // Play!
             this.networkManager.play(this.usernameInput.value);
             this.playMenu.classList.add('hidden');
+            this.leaderboard.classList.remove('hidden');
            // initState();
            // startCapturingInput();
             this.startRendering();
@@ -33,6 +35,25 @@ class ViewManager{
       //  this.renderInterval = setInterval(this.renderMainMenu, 1000 / Constants.UI_REFRESH_HZ);
 
         this.initRender();
+    }
+
+    renderLeaderboard(leaderboard){
+      var tbody = this.leaderboard.getElementsByTagName('tbody')[0];
+      tbody.innerHTML = ""; //Clear of the scores
+      
+      leaderboard.forEach((elem) => {
+        console.log(elem);
+        var tr = document.createElement('tr');
+        var tdName = document.createElement('td');
+        var tdScore = document.createElement('td');
+
+        tdName.innerText = elem.username;
+        tdScore.innerText = elem.score;
+        
+        tr.appendChild(tdName);
+        tr.appendChild(tdScore);
+        tbody.appendChild(tr);
+      })
     }
 
     setCanvasDimensions() {
@@ -130,9 +151,10 @@ class ViewManager{
 
       render() {
         var state = this.networkManager.getCurrentState();
-        const {me, others, map} = state;
+        const {me, others, map, leaderboard} = state;
         if (!me || !map) {return;}
         this.renderBackground();
+        this.renderLeaderboard(leaderboard);
         this.renderMap(map,me);
         this.renderPlayer(me, me);
         others.forEach(this.renderPlayer.bind(this).bind(null, me));
