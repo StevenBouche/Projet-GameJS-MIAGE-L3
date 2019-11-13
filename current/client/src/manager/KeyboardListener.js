@@ -8,7 +8,7 @@ class KeyBoardListener {
     constructor(){
         this.observers = [];
         this.state = {};
-        document.addEventListener('keydown',this.keyDownHandler.bind(this), false);
+        document.addEventListener('keydown',this.keyDownHandler, false);
     }
 
     addObserver(observer) {
@@ -31,7 +31,7 @@ class KeyBoardListener {
         }
     }   
 
-    keyDownHandler(event) {
+    keyDownHandler = (event) => {
 
         if(event.keyCode === KeyboardHelper.right ) {
            this.notifyInput(INPUT.E);

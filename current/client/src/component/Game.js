@@ -12,7 +12,7 @@ export default class Game extends Component {
     }
 
     componentDidMount(){
-       this.setState({networkManager: new NetworkManager(this.onGameOver.bind(this))}, () => {
+       this.setState({networkManager: new NetworkManager(this.onGameOver)}, () => {
            this.setState({viewManager: new ViewManager(this.state.networkManager)}, () => {
                this.state.viewManager.startRendering();
            });
@@ -24,11 +24,7 @@ export default class Game extends Component {
 
     }
 
-    componentDidUpdate(){
-       
-    }
-
-    onGameOver() {
+    onGameOver = () => {
          //stopCapturingInput();
          console.log("GAMEOVER")
          this.state.viewManager.stopRendering();
