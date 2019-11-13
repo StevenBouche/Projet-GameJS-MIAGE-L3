@@ -17,7 +17,7 @@ class Game {
     this.sockets[socket.id] = socket;
     // Generate a position to start this player at.
     var caseM = this.map.getRandomCaseMap(); // x & y
-
+    //TODO CONDITION DE SORTIE
     while (!this.map.isCaseEmpty(caseM.x, caseM.y)){
       caseM = this.map.getRandomCaseMap();
     }
@@ -51,7 +51,7 @@ class Game {
     }
   }
 
-  update() { 
+  update = () => { 
     const now = Date.now();
     const dt = (now - this.lastUpdateTime) / 1000;
     this.lastUpdateTime = now;

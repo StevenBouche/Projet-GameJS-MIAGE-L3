@@ -33,11 +33,9 @@ function joinGame(username) {
 
 function handleInput(dir) {
   gameManager.handleInput(this, dir);
- //console.log(dir)
 }
 
 function pong(){
-  //console.log(this);
   this.emit(Constants.MSG_TYPES.PONG)
 }
 

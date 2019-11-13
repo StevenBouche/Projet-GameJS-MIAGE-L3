@@ -4,16 +4,7 @@ class GameManager{
 
     constructor(){
         this.game = new Game();
-        this.int = setInterval(this.game.update.bind(this.game),1000/120)
-    }
-
-    gameLoop(){
-       // try {
-            
-      //  } catch (error) {
-      //      console.log(error)
-  //          this.game = new Game();
-      //  }
+        this.int = setInterval(this.game.update,1000/120)
     }
 
     addPlayer(socket, username) {

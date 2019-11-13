@@ -18,7 +18,6 @@ class Player extends ObjectClass {
   update(dt) {
     
     var dir = this.direction;
-    
 
     if(this.nextCase.x == undefined && this.nextCase.y == undefined) this.updateNextState();
 
