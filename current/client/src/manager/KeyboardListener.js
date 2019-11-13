@@ -11,6 +11,10 @@ class KeyBoardListener {
         document.addEventListener('keydown',this.keyDownHandler, false);
     }
 
+    resetInput(){
+        this.state = {};
+    }
+
     addObserver(observer) {
         this.observers.push(observer);
     }

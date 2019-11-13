@@ -27,7 +27,9 @@ export default class Game extends Component {
     onGameOver = () => {
          //stopCapturingInput();
          console.log("GAMEOVER")
-         this.state.viewManager.stopRendering();
+         var {viewManager, keyboardListener} = this.state;
+         viewManager.stopRendering();
+         keyboardListener.resetInput();
        //  playMenu.classList.remove('hidden');
        //  setLeaderboardHidden(true);
     }
