@@ -103,6 +103,9 @@ module.exports = class Map {
     }
 
     getMapPlayer(me){
+
+        //TODO VERIF
+        
         var res = this.getCaseOfXY(me.x,me.y);
         var indeXP = 0;
         if(res.y - 20 >= 0 ) indeXP = res.y - 20;
