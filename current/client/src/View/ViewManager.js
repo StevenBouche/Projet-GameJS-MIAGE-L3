@@ -11,6 +11,7 @@ class ViewManager{
         this.networkManager = networkManager;
         this.animMenu = undefined;
 
+        this.miniMap = undefined;
         this.playMenu = document.getElementById('play-menu');
         this.playButton = document.getElementById('play-button');
         this.usernameInput = document.getElementById('username-input');
@@ -32,6 +33,7 @@ class ViewManager{
         };*/
         this.lastState = {};
     //    this.initRender();
+        this.canvasMiniMap = document.getElementById('mini-map-canvas');
     }
 
     renderLeaderboard(leaderboard){
@@ -64,6 +66,8 @@ class ViewManager{
         const scaleRatio = Math.max(1, 800 / window.innerWidth);
         this.canvas.width = scaleRatio * window.innerWidth;
         this.canvas.height = scaleRatio * window.innerHeight;
+        document.getElementById("mini-map").style.height = Constants.MAP_SIZE/Constants.MAP_TILE+"px";
+        document.getElementById("mini-map").style.width = Constants.MAP_SIZE/Constants.MAP_TILE+"px";
     }
 
     renderBackground() {
@@ -148,10 +152,33 @@ class ViewManager{
         this.renderBackground();
       }
 
+      renderMiniMap = () => {
+          document.getElementById('mini-map').classList.remove('hidden');
+          var ctx = this.canvasMiniMap.getContext('2d'); 
+          ctx.clearRect(0,0, Constants.MAP_SIZE/Constants.MAP_TILE, Constants.MAP_SIZE/Constants.MAP_TILE)
+         // console.log(this.miniMap)
+       /*   for(var y = 0; y < this.miniMap.length; y++){
+            for(var x = 0; x < this.miniMap[y].length; x++){
+              if(!this.miniMap[y][x].value){
+                ctx.save();
+                ctx.beginPath();
+                ctx.fillStyle = 'black';
+                ctx.rect(x*10, y*10, 10, 10);
+                ctx.fill();
+                ctx.restore();
+              }
+            }
+          }*/
+      }
+
       render = () => {
         //var state = this.networkManager.getCurrentState();
-          const {me, others, map, leaderboard} = this.currentGameState;
+          const {me, others, map, leaderboard, miniMap} = this.currentGameState;
           if (!me || !map) {return;}
+        /*  if(this.miniMap !== miniMap) {
+            this.miniMap = miniMap
+            this.renderMiniMap();
+          }*/
           this.context.clearRect(0,0, this.canvas.width, this.canvas.height)
           this.renderBackground();
           this.renderLeaderboard(leaderboard);

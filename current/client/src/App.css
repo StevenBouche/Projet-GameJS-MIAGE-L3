@@ -38,6 +38,11 @@ button:focus {
   height: 100%;
 }
 
+#mini-map-canvas{
+  width: 100%;
+  height: 100%;
+}
+
 #play-menu {
   position: fixed;
   top: 50%;
@@ -92,6 +97,19 @@ button:focus {
   padding: 10px;
   border-radius: 5px;
 }
+
+#mini-map {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  width: 0px;
+  height: 0px;
+  background-color: rgba(255, 255, 255, 0.5);
+  padding: 0px;
+  border-radius: 5px;
+}
+
+
 
 #leaderboard th {
   text-align: center;

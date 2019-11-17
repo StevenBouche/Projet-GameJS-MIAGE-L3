@@ -110,6 +110,7 @@ class Game {
       t: Date.now(),
       me: player.serializeForUpdate(),
       map: this.map.getMapPlayer(player.serializeForUpdate()),
+      miniMap: this.map.getMiniMap(),
       others: nearbyPlayers.map(p => p.serializeForUpdate()),
       leaderboard,
     };

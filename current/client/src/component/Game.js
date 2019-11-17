@@ -72,6 +72,9 @@ export default class Game extends Component {
         return (
             <div>
                <canvas id="game-canvas"></canvas>
+               <div id="mini-map" className="hidden"> 
+                    <canvas id="mini-map-canvas"></canvas>
+               </div>
                 <div id="play-menu" className="hidden">
                     <h1>.io Game</h1>
                     <hr/>

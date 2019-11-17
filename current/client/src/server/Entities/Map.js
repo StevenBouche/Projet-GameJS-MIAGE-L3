@@ -121,6 +121,27 @@ module.exports = class Map {
         return filt;
     }
 
+    getMiniMap(){
+        var result = [];
+/*
+        for(var i = 0; i < this.map.length; i++){
+            var tab = this.map[i].filter((element) => { return element.type !== Constants.TYPECASE.AREA });
+            result.push(tab);
+        }*/
+     /*   for(var y = 0; y < this.map.length; y++){
+            var tab = [];
+            for(var x = 0; x < this.map[y].length; x++){
+                tab.push({
+                    value: (this.map[y][x].type !== Constants.TYPECASE.AREA),
+                    x: this.map[y][x].x,
+                    y: this.map[y][x].y
+                });
+            }
+            result.push(tab);
+        }*/
+        return result;
+    }
+
     isCasePlayer(x,y,playerid){
         if(x >= this.numberTile) return true;
         if(y >= this.numberTile) return true;
