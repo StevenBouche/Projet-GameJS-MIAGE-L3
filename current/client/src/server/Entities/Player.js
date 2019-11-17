@@ -1,5 +1,5 @@
 const ObjectClass = require('./Object');
-const Constants = require('../shared/constants');
+const Constants = require('../../shared/constants');
 var equal = require('deep-equal');
 
 class Player extends ObjectClass {

@@ -1,8 +1,7 @@
 const express = require('express');
 const socketio = require('socket.io');
-const Constants = require('./shared/constants');
-const GameManager = require('./Manager/GameManager')
-
+const { MSG_TYPES } = require('../shared/constants');
+const GameManager = require('./Manager/GameManager');
 
 const app = express();
 
@@ -17,9 +16,9 @@ const io = socketio(server);
 // Listen for socket.io connections
 io.on('connection', socket => {
   console.log('Player connected!', socket.id);
-  socket.on(Constants.MSG_TYPES.JOIN_GAME, joinGame);
-  socket.on(Constants.MSG_TYPES.INPUT, handleInput);
-  socket.on(Constants.MSG_TYPES.PING, pong)
+  socket.on(MSG_TYPES.JOIN_GAME, joinGame);
+  socket.on(MSG_TYPES.INPUT, handleInput);
+  socket.on(MSG_TYPES.PING, pong);
   socket.on('disconnect', onDisconnect);
 });
 
@@ -36,7 +35,7 @@ function handleInput(dir) {
 }
 
 function pong(){
-  this.emit(Constants.MSG_TYPES.PONG)
+  this.emit(MSG_TYPES.PONG)
 }
 
 function onDisconnect() {

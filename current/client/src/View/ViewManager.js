@@ -1,12 +1,15 @@
 import { debounce } from 'throttle-debounce';
 import AnimationMenu from './AnimationMenu'
-
+var equal = require('deep-equal');
 const Constants = require('../shared/constants');
 const { MAP_SIZE } = Constants;
 
 class ViewManager{
 
     constructor(networkManager){
+        this.currentGameState = {};
+        this.networkManager = networkManager;
+        this.animMenu = undefined;
 
         this.playMenu = document.getElementById('play-menu');
         this.playButton = document.getElementById('play-button');
@@ -14,15 +17,11 @@ class ViewManager{
         this.canvas = document.getElementById('game-canvas');
         this.context = this.canvas.getContext('2d');      
         this.leaderboard = document.getElementById('leaderboard');
-
-        this.networkManager = networkManager;
-        this.animMenu = undefined;
-
-        window.addEventListener('resize', debounce(40, this.setCanvasDimensions));
         this.setCanvasDimensions();
-
+        window.addEventListener('resize', debounce(40, this.setCanvasDimensions));
         this.usernameInput.focus();
-        this.playButton.onclick = () => {
+        this.playButton = document.getElementById('play-button');
+        /*this.playButton.onclick = () => {
             this.networkManager.play(this.usernameInput.value);
             this.playMenu.classList.add('hidden');
             this.leaderboard.classList.remove('hidden');
@@ -30,8 +29,9 @@ class ViewManager{
            // initState();
            // startCapturingInput();
            // this.setLeaderboardHidden(false);
-        };
-        this.initRender();
+        };*/
+        this.lastState = {};
+    //    this.initRender();
     }
 
     renderLeaderboard(leaderboard){
@@ -149,14 +149,15 @@ class ViewManager{
       }
 
       render = () => {
-        var state = this.networkManager.getCurrentState();
-        const {me, others, map, leaderboard} = state;
-        if (!me || !map) {return;}
-        this.renderBackground();
-        this.renderLeaderboard(leaderboard);
-        this.renderMap(map,me);
-        this.renderPlayer(me, me);
-        others.forEach(this.renderPlayer.bind(null, me));
+        //var state = this.networkManager.getCurrentState();
+          const {me, others, map, leaderboard} = this.currentGameState;
+          if (!me || !map) {return;}
+          this.context.clearRect(0,0, this.canvas.width, this.canvas.height)
+          this.renderBackground();
+          this.renderLeaderboard(leaderboard);
+          this.renderMap(map,me);
+          this.renderPlayer(me, me);
+          others.forEach(this.renderPlayer.bind(null, me));
       }
       
       startRendering() {

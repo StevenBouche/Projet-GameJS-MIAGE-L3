@@ -1,7 +1,6 @@
 const Map = require('./Map');
 const Player = require('./player');
-//const applyCollisions = require('./collisions');
-const Constants = require('../shared/constants');
+const {TYPECASE, MSG_TYPES, MAP_SIZE} = require('../../shared/constants');
 var equal = require('deep-equal');
 
 class Game {
@@ -15,8 +14,8 @@ class Game {
 
   addPlayer(socket, username) {
     this.sockets[socket.id] = socket;
-    // Generate a position to start this player at.
-    var caseM = this.map.getRandomCaseMap(); // x & y
+    var caseM = this.map.getRandomCaseMap(); // x & y  Generate a position to start this player at.
+
     //TODO CONDITION DE SORTIE
     while (!this.map.isCaseEmpty(caseM.x, caseM.y)){
       caseM = this.map.getRandomCaseMap();
@@ -33,22 +32,14 @@ class Game {
   }
 
   playerDie(playerID){
-    const player = this.players[playerID];
     const socket = this.sockets[playerID];
     this.map.delCaseOf(playerID);
-    try{
-      socket.emit(Constants.MSG_TYPES.GAME_OVER);
-    } catch(error){
-
-    }
+    try{ socket.emit(MSG_TYPES.GAME_OVER); } catch(error){ console.log(error)}
     this.removePlayer(playerID);
   }
 
   handleInput(socket, dir) {
-    if (this.players[socket.id]) {
-     // this.players[socket.id].setDirection(dir);
-      this.players[socket.id].updateState(dir);
-    }
+    if (this.players[socket.id]) this.players[socket.id].updateState(dir);
   }
 
   update = () => { 
@@ -59,7 +50,6 @@ class Game {
     // Update each player
     Object.keys(this.sockets).forEach(playerID => {
       const player = this.players[playerID];
-      const socket = this.sockets[playerID];
       if(player != undefined){
         player.update(dt);
         var res = this.map.getCaseOfXY(player.x,player.y);
@@ -67,7 +57,7 @@ class Game {
         var b = player.setCurrentCase(res);
         //NEW CASE
         if(b) {
-          var value = {type: Constants.TYPECASE.PATH, idPlayer: playerID, color: player.couleur};
+          var value = {type: TYPECASE.PATH, idPlayer: playerID, color: player.couleur};
           //si je retourne sur mon path je meurt
           if(this.map.isCasePathPlayer(res.x,res.y,player.id)) this.playerDie(player.id);
           //si je tombe sur une case vide devient mon path
@@ -101,7 +91,7 @@ class Game {
     Object.keys(this.sockets).forEach(playerID => {
       const socket = this.sockets[playerID];
       const player = this.players[playerID];
-      socket.emit(Constants.MSG_TYPES.GAME_UPDATE, this.createUpdate(player, leaderboard));
+      socket.emit(MSG_TYPES.GAME_UPDATE, this.createUpdate(player, leaderboard));
     });
   }
 
@@ -114,12 +104,12 @@ class Game {
 
   createUpdate(player, leaderboard) {
     const nearbyPlayers = Object.values(this.players).filter(
-      p => p !== player && p.distanceTo(player) <= Constants.MAP_SIZE,
+      p => p !== player && p.distanceTo(player) <= MAP_SIZE,
     );
     return {
       t: Date.now(),
       me: player.serializeForUpdate(),
-      map: this.map.map,
+      map: this.map.getMapPlayer(player.serializeForUpdate()),
       others: nearbyPlayers.map(p => p.serializeForUpdate()),
       leaderboard,
     };

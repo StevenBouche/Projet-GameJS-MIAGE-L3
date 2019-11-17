@@ -4,7 +4,7 @@ class GameManager{
 
     constructor(){
         this.game = new Game();
-        this.int = setInterval(this.game.update,1000/120)
+        this.int = setInterval(this.game.update,1000/100)
     }
 
     addPlayer(socket, username) {

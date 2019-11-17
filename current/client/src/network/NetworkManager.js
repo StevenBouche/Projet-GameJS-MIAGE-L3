@@ -6,22 +6,20 @@ var ip = process.env.GAME_HOSTNAME || "localhost"
 
 
 class NetworkManager {
-  constructor(onGameOver) {
+  constructor(game) {
     this.socket = io(`ws://${ip}:${port}`, { reconnection: false });
-    this.firstTimeServer = 0;
-    this.gameStart = 0;
     this.state = {};
     this.timestampPing = undefined;
     this.latency = 0;
-
+    this.game = game;
     document.getElementById("connexion-server").classList.remove("hidden");
 
     this.connectedPromise = new Promise(resolve => {
       this.socket.on("connect", () => {
         document.getElementById("connexion-server").classList.add("hidden");
         document.getElementById("play-menu").classList.remove("hidden");
-        this.connect(onGameOver);
-        setInterval(this.ping, 20000);
+        this.connect(game.onGameOver);
+        //setInterval(this.ping, 20000);
         resolve();
       });
     });
@@ -37,7 +35,7 @@ class NetworkManager {
   }
 
   updateInput(dir) {
-    this.socket.emit(Constants.MSG_TYPES.INPUT, dir);
+    this.socket.emit(Constants.MSG_TYPES.INPUT, dir/*, timestamp*/);
   }
 
   ping = () => {
@@ -55,7 +53,9 @@ class NetworkManager {
   }
  
   gameUpdate = update => {
-    this.state = update;
+   // console.log(update)
+    this.game.updateStateGame(update);
+   // this.state = update;
   }
 
   connect = onGameOver =>

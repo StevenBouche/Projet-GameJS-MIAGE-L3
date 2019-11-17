@@ -2,41 +2,69 @@ import React, { Component } from 'react';
 import NetworkManager from '../network/NetworkManager'
 import ViewManager from '../View/ViewManager'
 import KeyboardListener from '../manager/KeyboardListener'
+import StateGame from './../Model/state'
 
 export default class Game extends Component {
 
     state = {
         networkManager: undefined,
         viewManager: undefined,
-        keyboardListener: undefined
+        keyboardListener: undefined,
+        playbutton: undefined,
+        usernameInput: undefined,
+        playmenu: undefined,
+        leaderboard: undefined,
+        stateGame: undefined
     }
 
     componentDidMount(){
-       this.setState({networkManager: new NetworkManager(this.onGameOver)}, () => {
-           this.setState({viewManager: new ViewManager(this.state.networkManager)}, () => {
-               this.state.viewManager.startRendering();
-           });
-       });  
-
-       this.setState({keyboardListener: new KeyboardListener()}, () => {
+       // this.setState({stateGame: new StateGame()});
+        this.setState({networkManager: new NetworkManager(this)});  
+        this.setState({viewManager: new ViewManager()});
+        this.setState({keyboardListener: new KeyboardListener()}, () => {
             this.state.keyboardListener.addObserver(this);
-       });
-
+        });
+        this.setState({
+            playbutton: document.getElementById('play-button'),
+            usernameInput: document.getElementById('username-input'),
+            leaderboard: document.getElementById('leaderboard'),
+            playmenu: document.getElementById('play-menu')
+        }, () => {
+            this.state.playbutton.onclick = () => {
+                this.state.networkManager.play(this.state.usernameInput.value);
+                this.state.viewManager.startRendering();
+                this.setLeaderboardHidden(false);
+                this.setPlaymenuHidden(true);
+            };
+        });
     }
 
     onGameOver = () => {
-         //stopCapturingInput();
-         console.log("GAMEOVER")
-         var {viewManager, keyboardListener} = this.state;
-         viewManager.stopRendering();
-         keyboardListener.resetInput();
-       //  playMenu.classList.remove('hidden');
-       //  setLeaderboardHidden(true);
+        var {viewManager, keyboardListener} = this.state;
+        viewManager.stopRendering();
+        keyboardListener.resetInput();
+        this.setLeaderboardHidden(true);
+        this.setPlaymenuHidden(false);
     }
      
     updateInput(data){
-        console.log(data)
+    //    this.state.stateGame.updateInput(data);
         this.state.networkManager.updateInput(data);
+    }
+
+    updateStateGame(state){
+      //  this.state.stateGame.updateStateGame(state);
+        this.state.viewManager.currentGameState = state;
+    }
+
+    setLeaderboardHidden = (bool) => {
+        if(bool) this.state.leaderboard.classList.add('hidden');
+        else this.state.leaderboard.classList.remove('hidden');
+    }
+
+    setPlaymenuHidden = (bool) => {
+        if(bool) this.state.playmenu.classList.add('hidden');
+        else this.state.playmenu.classList.remove('hidden');
     }
 
     render(){

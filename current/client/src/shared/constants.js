@@ -1,10 +1,10 @@
 module.exports = Object.freeze({
   PLAYER_RADIUS: 20,
   PLAYER_MAX_HP: 100,
-  PLAYER_SPEED: 250,
+  PLAYER_SPEED: 200,
   SCORE_PER_SECOND: 1,
-  UI_REFRESH_HZ: 120,
-  MAP_SIZE: 1000,
+  UI_REFRESH_HZ: 60,
+  MAP_SIZE: 10000,
   MAP_TILE: 50,
   MSG_TYPES: {
     JOIN_GAME: 'join_game',

@@ -1,0 +1,6 @@
+projectKey=JSProject_S5_MIAGE:a3a36678c1591052ef3adfc24fbf0d7484
+serverUrl=http://stevenbouche.com:9000
+serverVersion=7.9.1.27448
+dashboardUrl=http://stevenbouche.com:9000/dashboard?id=JSProject_S5_MIAGE%3Aa3a36678c1591052ef3adfc24fbf0d7484
+ceTaskId=AW51au0QogPZNU7Btq1V
+ceTaskUrl=http://stevenbouche.com:9000/api/ce/task?id=AW51au0QogPZNU7Btq1V
