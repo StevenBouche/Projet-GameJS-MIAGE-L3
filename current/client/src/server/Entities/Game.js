@@ -1,4 +1,5 @@
-const Map = require('./Map');
+//const Map = require('./Map');
+const Matrice = require('./Matrice')
 const Player = require('./player');
 const {TYPECASE, MSG_TYPES, MAP_SIZE} = require('../../shared/constants');
 var equal = require('deep-equal');
@@ -7,7 +8,7 @@ class Game {
   constructor() {
     this.sockets = {};
     this.players = {};
-    this.map = new Map();
+    this.map = new Matrice();
     this.lastUpdateTime = Date.now();
     this.shouldSendUpdate = false;
   }
@@ -58,23 +59,24 @@ class Game {
         //NEW CASE
         if(b) {
           var value = {type: TYPECASE.PATH, idPlayer: playerID, color: player.couleur};
+          var elem = this.map.getElementMap(res.x,res.y);
           //si je retourne sur mon path je meurt
           if(this.map.isCasePathPlayer(res.x,res.y,player.id)) this.playerDie(player.id);
           //si je tombe sur une case vide devient mon path
           else if (this.map.isCaseEmpty(res.x,res.y)) this.map.setCaseOfMap(res.x,res.y,value);
           //si c'est une case area a moi je regarde pour construire et tue si un joueur a un path dessus
           else if (this.map.isCaseAreaPlayer(res.x,res.y,player.id)) {
-              if(this.map.map[res.y][res.x].path != undefined) this.playerDie(this.map.map[res.y][res.x].path.idPlayer);
+              if(elem.value.path != undefined) this.playerDie(elem.value.path.idPlayer);
               this.map.pathToArea(player);
           }
           // si case area autre joueur j'add mon path sur son area 
           else if (this.map.isCaseAreaOtherPlayer(res.x,res.y,player.id)) {
-            if(this.map.map[res.y][res.x].path != undefined && this.map.map[res.y][res.x].path.idPlayer == player.id) this.playerDie(player.id);
+            if(elem.value.path != undefined && elem.value.path.idPlayer == player.id) this.playerDie(player.id);
             else this.map.addPathOnArea(res.x,res.y,player);
           }
           //si c'est un chemin d'un autre joueur il meurt et devient mon path
           else if(this.map.isCasePathOtherPlayer(res.x,res.y,player.id)){
-            this.playerDie(this.map.map[res.y][res.x].idPlayer);
+            this.playerDie(elem.value.idPlayer);
             this.map.setCaseOfMap(res.x,res.y,value);
           } 
         }

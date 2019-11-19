@@ -75,7 +75,6 @@ class ViewManager{
         this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
-
    renderMap(map,me){
       // Draw boundaries
       this.context.strokeStyle = 'black';
@@ -83,49 +82,48 @@ class ViewManager{
       var topLeftMap = {x: this.canvas.width / 2 - me.x, y: this.canvas.height / 2 - me.y};
       this.context.strokeRect(topLeftMap.x, topLeftMap.y, MAP_SIZE, MAP_SIZE);
       
-      map.forEach( (element) => {
-        element.forEach((caseMap) => {
-          if(this.isInCamera(me,caseMap.x,caseMap.y)) {
-              this.context.save();
-            if(caseMap.type === Constants.TYPECASE.VIDE) {
-              this.context.beginPath();
-              this.context.fillStyle ='rgb(64,64,64)';
-              this.context.strokeStyle ="green";
-              this.context.rect(topLeftMap.x+caseMap.x-Constants.MAP_TILE/2, topLeftMap.y+caseMap.y-Constants.MAP_TILE/2, Constants.MAP_TILE, Constants.MAP_TILE);
-              this.context.fill();
-              this.context.stroke();
-            }
-            else if(caseMap.type === Constants.TYPECASE.PATH){  
-              this.context.beginPath();
-              this.context.fillStyle ='rgb(64,64,64)';
-              this.context.strokeStyle ="green";
-              this.context.rect(topLeftMap.x+caseMap.x-Constants.MAP_TILE/2, topLeftMap.y+caseMap.y-Constants.MAP_TILE/2, Constants.MAP_TILE, Constants.MAP_TILE);
-              this.context.fill();
-              this.context.stroke();
-              this.context.beginPath();
-              this.context.fillStyle = caseMap.color;
-              this.context.arc( topLeftMap.x+caseMap.x, topLeftMap.y+caseMap.y, Constants.MAP_TILE/4, 0, 2*Math.PI, true);
-              this.context.fill();
-              this.context.stroke();
-            }else if(caseMap.type === Constants.TYPECASE.AREA){  
-              this.context.beginPath();
-              this.context.fillStyle = caseMap.color;
-              this.context.strokeStyle ="green";
-              this.context.rect(topLeftMap.x+caseMap.x-Constants.MAP_TILE/2, topLeftMap.y+caseMap.y-Constants.MAP_TILE/2, Constants.MAP_TILE, Constants.MAP_TILE);
-              this.context.fill();
-              this.context.stroke();
-              if(caseMap.path !== undefined) {
-                this.context.beginPath();
-                this.context.fillStyle = caseMap.path.color;
-                this.context.arc( topLeftMap.x+caseMap.x, topLeftMap.y+caseMap.y, Constants.MAP_TILE/4, 0, 2*Math.PI, true);
-                this.context.fill();
-                this.context.stroke();
-              }
-            }
-            this.context.restore();
+      map.forEach((element) => {
+        var caseMap = element.value;
+        if(this.isInCamera(me,caseMap.x,caseMap.y)) {
+          this.context.save();
+        if(caseMap.type === Constants.TYPECASE.VIDE) {
+          this.context.beginPath();
+          this.context.fillStyle ='rgb(64,64,64)';
+          this.context.strokeStyle ="green";
+          this.context.rect(topLeftMap.x+caseMap.x-Constants.MAP_TILE/2, topLeftMap.y+caseMap.y-Constants.MAP_TILE/2, Constants.MAP_TILE, Constants.MAP_TILE);
+          this.context.fill();
+          this.context.stroke();
+        }
+        else if(caseMap.type === Constants.TYPECASE.PATH){  
+          this.context.beginPath();
+          this.context.fillStyle ='rgb(64,64,64)';
+          this.context.strokeStyle ="green";
+          this.context.rect(topLeftMap.x+caseMap.x-Constants.MAP_TILE/2, topLeftMap.y+caseMap.y-Constants.MAP_TILE/2, Constants.MAP_TILE, Constants.MAP_TILE);
+          this.context.fill();
+          this.context.stroke();
+          this.context.beginPath();
+          this.context.fillStyle = caseMap.color;
+          this.context.arc( topLeftMap.x+caseMap.x, topLeftMap.y+caseMap.y, Constants.MAP_TILE/4, 0, 2*Math.PI, true);
+          this.context.fill();
+          this.context.stroke();
+        }else if(caseMap.type === Constants.TYPECASE.AREA){  
+          this.context.beginPath();
+          this.context.fillStyle = caseMap.color;
+          this.context.strokeStyle ="green";
+          this.context.rect(topLeftMap.x+caseMap.x-Constants.MAP_TILE/2, topLeftMap.y+caseMap.y-Constants.MAP_TILE/2, Constants.MAP_TILE, Constants.MAP_TILE);
+          this.context.fill();
+          this.context.stroke();
+          if(caseMap.path !== undefined) {
+            this.context.beginPath();
+            this.context.fillStyle = caseMap.path.color;
+            this.context.arc( topLeftMap.x+caseMap.x, topLeftMap.y+caseMap.y, Constants.MAP_TILE/4, 0, 2*Math.PI, true);
+            this.context.fill();
+            this.context.stroke();
           }
-        })
-      })
+        }
+        this.context.restore();
+      }
+      });
    }
 
     renderPlayer = (me, player) => {

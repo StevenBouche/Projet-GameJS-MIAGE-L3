@@ -10,15 +10,22 @@ module.exports = class Matrice {
     }
 
     init(){
-        var x = 0, y = 0;
-        for(var i = 0 ; i < this.numberTile*this.numberTile; i++){
-            var xy = this.getXYCenterfromCase(x,y);
-            this.map.push({ key: {x:x,y:y}, value: {type: Constants.TYPECASE.VIDE, x: xy.x, y: xy.y}});
+       // console.log(this.numberTile)
+        for(var y = 0; y < this.numberTile; y ++){
+            for(var x = 0; x < this.numberTile; x++){
+                var xy = this.getXYCenterfromCase(x,y);
+                var element = { key: {x:x,y:y}, value: {type: Constants.TYPECASE.VIDE, x: xy.x, y: xy.y}};
+             //   console.log(element)
+                this.map.push(element);
+            }
         }
     }
 
     getElementMap(x,y){
-        return this.map.find(element => element.key.x == x && element.key.y == y);
+      //  console.log(x,y)
+        var elem = this.map.find(element => element.key.x === x && element.key.y === y);
+      //  console.log(elem);
+        return elem;
     }
 
     setElementMap(x,y,value){
@@ -53,6 +60,7 @@ module.exports = class Matrice {
     getCaseOfXY(x,y){
         var xc = Math.floor(x/Constants.MAP_TILE);
         var yc = Math.floor(y/Constants.MAP_TILE);
+      //  console.log(x,y,xc,yc);
         return {x: xc, y: yc};
     }
 
@@ -64,7 +72,7 @@ module.exports = class Matrice {
     }
 
     getNbAreaPlayer(playerid){
-        var tab = this.map.filter(element => this.isCaseAreaPlayer(element.x,element.y,playerid));
+        var tab = this.map.filter(element => this.isCaseAreaPlayer(element.key.x,element.key.y,playerid));
         return tab.length;
     }
 
@@ -101,17 +109,9 @@ module.exports = class Matrice {
         }
     }
 
-    getMapPlayer(me){
-
-        //TODO VERIF
-        
-        var flt = this.map.filter(element => 
-            element.key.x > me.x - 20 && 
-            element.key < me.x +20 &&
-            element.key.y > me.y - 20 && 
-            element.key.y > me.y + 20);
-
-        return flt;
+    getMapPlayer(me){    
+        var elem = this.getCaseOfXY(me.x,me.y);
+        return this.map.filter(element => element.key.x >= elem.x - 10 && element.key.x <= elem.x + 10 && element.key.y >= elem.y - 10 && element.key.y <= elem.y + 10);
     }
 
     getMiniMap(){
@@ -169,6 +169,7 @@ module.exports = class Matrice {
 
     isCaseEmpty(x,y){
         var elem = this.getElementMap(x,y);
+       // console.log(x,y,elem)
         return (elem.value.type == Constants.TYPECASE.VIDE);
     }
 
@@ -190,16 +191,19 @@ module.exports = class Matrice {
             path: {}
         };
 
+    
         this.map.forEach((element) => {
-            var b = this.isCasePlayer(element.value.x,element.value.y,player.id);
+            var { x , y } = element.key;
+            var b = this.isCasePlayer(x,y,player.id);
             if(b){
-                if(this.isCasePathPlayer(element.value.x,element.value.y,player.id)) this.setCaseOfMap(element.value.x,element.value.y,value);
-                    else if(this.isCaseAreaOtherPlayer(element.value.x,element.value.y,player.id) && element.value.path != undefined){
-                        this.setCaseOfMap(element.value.x,element.value.y,value);
+                
+                if(this.isCasePathPlayer(x,y,player.id)) this.setCaseOfMap(x,y,value);
+                    else if(this.isCaseAreaOtherPlayer(x,y,player.id) && element.value.path != undefined){
+                        this.setCaseOfMap(x,y,value);
                         element.value.path = undefined;
                 }
-                if(!this.isCasePlayer(element.value.x+1,element.value.y,player.id)) this.searchNextPathAreaX(element.value.x+1,element.value.y,player.id,tabX);
-                if(!this.isCasePlayer(element.value.x,element.value.y+1,player.id)) this.searchNextPathAreaY(element.value.x,element.value.y+1,player.id,tabY);
+                if(!this.isCasePlayer(x+1,y,player.id)) this.searchNextPathAreaX(x+1,y,player.id,tabX);
+                if(!this.isCasePlayer(x,y+1,player.id)) this.searchNextPathAreaY(x,y+1,player.id,tabY);
             }
         })
 
