@@ -66,6 +66,7 @@ class ViewManager{
         const scaleRatio = Math.max(1, 800 / window.innerWidth);
         this.canvas.width = scaleRatio * window.innerWidth;
         this.canvas.height = scaleRatio * window.innerHeight;
+        console.log(Constants.MAP_SIZE/Constants.MAP_TILE)
         document.getElementById("mini-map").style.height = Constants.MAP_SIZE/Constants.MAP_TILE+"px";
         document.getElementById("mini-map").style.width = Constants.MAP_SIZE/Constants.MAP_TILE+"px";
     }
@@ -91,7 +92,7 @@ class ViewManager{
           this.context.fillStyle ='rgb(64,64,64)';
           this.context.strokeStyle ="green";
           this.context.rect(topLeftMap.x+caseMap.x-Constants.MAP_TILE/2, topLeftMap.y+caseMap.y-Constants.MAP_TILE/2, Constants.MAP_TILE, Constants.MAP_TILE);
-          this.context.fill();
+         // this.context.fill();
           this.context.stroke();
         }
         else if(caseMap.type === Constants.TYPECASE.PATH){  
@@ -99,7 +100,7 @@ class ViewManager{
           this.context.fillStyle ='rgb(64,64,64)';
           this.context.strokeStyle ="green";
           this.context.rect(topLeftMap.x+caseMap.x-Constants.MAP_TILE/2, topLeftMap.y+caseMap.y-Constants.MAP_TILE/2, Constants.MAP_TILE, Constants.MAP_TILE);
-          this.context.fill();
+        //  this.context.fill();
           this.context.stroke();
           this.context.beginPath();
           this.context.fillStyle = caseMap.color;
@@ -155,6 +156,15 @@ class ViewManager{
           var ctx = this.canvasMiniMap.getContext('2d'); 
           ctx.clearRect(0,0, Constants.MAP_SIZE/Constants.MAP_TILE, Constants.MAP_SIZE/Constants.MAP_TILE)
          // console.log(this.miniMap)
+          this.miniMap.forEach((element) => {
+            ctx.save();
+            ctx.beginPath();
+            ctx.fillStyle = element.value.color;
+            ctx.rect(element.key.x,  element.key.y, 1, 1);
+            ctx.fill();
+            ctx.restore();
+          });
+         // console.log(this.miniMap)
        /*   for(var y = 0; y < this.miniMap.length; y++){
             for(var x = 0; x < this.miniMap[y].length; x++){
               if(!this.miniMap[y][x].value){
@@ -173,10 +183,10 @@ class ViewManager{
         //var state = this.networkManager.getCurrentState();
           const {me, others, map, leaderboard, miniMap} = this.currentGameState;
           if (!me || !map) {return;}
-        /*  if(this.miniMap !== miniMap) {
+          if(this.miniMap !== miniMap) {
             this.miniMap = miniMap
             this.renderMiniMap();
-          }*/
+          }
           this.context.clearRect(0,0, this.canvas.width, this.canvas.height)
           this.renderBackground();
           this.renderLeaderboard(leaderboard);

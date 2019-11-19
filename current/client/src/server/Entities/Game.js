@@ -11,6 +11,8 @@ class Game {
     this.map = new Matrice();
     this.lastUpdateTime = Date.now();
     this.shouldSendUpdate = false;
+    this.mapAreaHaveChange = false;
+    this.minimap = undefined;
   }
 
   addPlayer(socket, username) {
@@ -37,6 +39,7 @@ class Game {
     this.map.delCaseOf(playerID);
     try{ socket.emit(MSG_TYPES.GAME_OVER); } catch(error){ console.log(error)}
     this.removePlayer(playerID);
+    this.mapAreaHaveChange = true;
   }
 
   handleInput(socket, dir) {
@@ -54,12 +57,40 @@ class Game {
       if(player != undefined){
         player.update(dt);
         var res = this.map.getCaseOfXY(player.x,player.y);
-
         var b = player.setCurrentCase(res);
         //NEW CASE
         if(b) {
+
           var value = {type: TYPECASE.PATH, idPlayer: playerID, color: player.couleur};
           var elem = this.map.getElementMap(res.x,res.y);
+
+
+          switch (elem.value.type) {
+            case TYPECASE.VIDE:
+                this.map.setCaseOfMap(res.x,res.y,value);
+                player.setLastArea(false);
+                break;
+            case TYPECASE.PATH:
+                if(elem.value.idPlayer == player.id) this.playerDie(player.id);
+                else { this.playerDie(elem.value.idPlayer); this.map.setCaseOfMap(res.x,res.y,value);}
+                player.setLastArea(false);
+                break;
+            case TYPECASE.AREA:
+                if(elem.value.path != undefined) this.playerDie(elem.value.path.idPlayer);
+                if(elem.value.idPlayer == player.id) {
+                  if(!player.lastCaseArea) {
+                    this.map.pathToArea(player);
+                    player.setLastArea(true);
+                    this.mapAreaHaveChange = true;
+                  }
+                }
+                else this.map.addPathOnArea(res.x,res.y,player);
+                break;
+            default:
+                break;
+          }
+
+/*
           //si je retourne sur mon path je meurt
           if(this.map.isCasePathPlayer(res.x,res.y,player.id)) this.playerDie(player.id);
           //si je tombe sur une case vide devient mon path
@@ -78,22 +109,26 @@ class Game {
           else if(this.map.isCasePathOtherPlayer(res.x,res.y,player.id)){
             this.playerDie(elem.value.idPlayer);
             this.map.setCaseOfMap(res.x,res.y,value);
-          } 
+          }*/ 
         }
         if (this.players[playerID] != undefined) {
-         /* if(this.players[playerID].score == 0){
-            this.playerDie(playerID);
-          }*/
+
           this.players[playerID].score = this.map.getNbAreaPlayer(playerID);
         }
       }
     });
 
     const leaderboard = this.getLeaderboard();
+    
+    
+    if(this.mapAreaHaveChange) this.minimap = this.map.getMiniMap();
+    const minimap = this.minimap;
     Object.keys(this.sockets).forEach(playerID => {
       const socket = this.sockets[playerID];
       const player = this.players[playerID];
-      socket.emit(MSG_TYPES.GAME_UPDATE, this.createUpdate(player, leaderboard));
+      var element = this.createUpdate(player, leaderboard);
+      element.miniMap = minimap;
+      socket.emit(MSG_TYPES.GAME_UPDATE, element);
     });
   }
 
@@ -112,7 +147,7 @@ class Game {
       t: Date.now(),
       me: player.serializeForUpdate(),
       map: this.map.getMapPlayer(player.serializeForUpdate()),
-      miniMap: this.map.getMiniMap(),
+
       others: nearbyPlayers.map(p => p.serializeForUpdate()),
       leaderboard,
     };

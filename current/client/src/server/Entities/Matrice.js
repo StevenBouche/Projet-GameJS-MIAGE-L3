@@ -22,10 +22,7 @@ module.exports = class Matrice {
     }
 
     getElementMap(x,y){
-      //  console.log(x,y)
-        var elem = this.map.find(element => element.key.x === x && element.key.y === y);
-      //  console.log(elem);
-        return elem;
+      return this.map[x+y*this.numberTile];
     }
 
     setElementMap(x,y,value){
@@ -111,28 +108,12 @@ module.exports = class Matrice {
 
     getMapPlayer(me){    
         var elem = this.getCaseOfXY(me.x,me.y);
-        return this.map.filter(element => element.key.x >= elem.x - 10 && element.key.x <= elem.x + 10 && element.key.y >= elem.y - 10 && element.key.y <= elem.y + 10);
+      //  console.log(elem)
+        return this.map.filter(element => element.key.x >= elem.x - 15 && element.key.x <= elem.x + 15 && element.key.y >= elem.y - 8 && element.key.y <= elem.y + 8);
     }
 
     getMiniMap(){
-        var result = [];
-/*
-        for(var i = 0; i < this.map.length; i++){
-            var tab = this.map[i].filter((element) => { return element.type !== Constants.TYPECASE.AREA });
-            result.push(tab);
-        }*/
-     /*   for(var y = 0; y < this.map.length; y++){
-            var tab = [];
-            for(var x = 0; x < this.map[y].length; x++){
-                tab.push({
-                    value: (this.map[y][x].type !== Constants.TYPECASE.AREA),
-                    x: this.map[y][x].x,
-                    y: this.map[y][x].y
-                });
-            }
-            result.push(tab);
-        }*/
-        return result;
+        return this.map.filter(element => element.value.type == Constants.TYPECASE.AREA);
     }
 
     isCasePlayer(x,y,playerid){
@@ -152,8 +133,16 @@ module.exports = class Matrice {
         return (elem.value.type == Constants.TYPECASE.PATH && elem.value.idPlayer === playerid);
     }
 
+    isCasePathPlayerElem(elem,playerid){
+        return (elem.value.type == Constants.TYPECASE.PATH && elem.value.idPlayer === playerid);
+    }
+
     isCaseAreaPlayer(x,y,playerid){
         var elem = this.getElementMap(x,y);
+        return (elem.value.type == Constants.TYPECASE.AREA && elem.value.idPlayer === playerid);
+    }
+
+    isCaseAreaPlayerElem(elem,playerid){
         return (elem.value.type == Constants.TYPECASE.AREA && elem.value.idPlayer === playerid);
     }
 
@@ -164,6 +153,10 @@ module.exports = class Matrice {
 
     isCaseAreaOtherPlayer(x,y,playerid){
         var elem = this.getElementMap(x,y);
+        return (elem.value.type == Constants.TYPECASE.AREA && elem.value.idPlayer !== playerid);
+    }
+
+    isCaseAreaOtherPlayerElem(elem,playerid){
         return (elem.value.type == Constants.TYPECASE.AREA && elem.value.idPlayer !== playerid);
     }
 
@@ -196,7 +189,6 @@ module.exports = class Matrice {
             var { x , y } = element.key;
             var b = this.isCasePlayer(x,y,player.id);
             if(b){
-                
                 if(this.isCasePathPlayer(x,y,player.id)) this.setCaseOfMap(x,y,value);
                     else if(this.isCaseAreaOtherPlayer(x,y,player.id) && element.value.path != undefined){
                         this.setCaseOfMap(x,y,value);

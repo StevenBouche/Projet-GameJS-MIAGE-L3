@@ -1,18 +1,19 @@
 module.exports = Object.freeze({
   PLAYER_RADIUS: 20,
   PLAYER_MAX_HP: 100,
-  PLAYER_SPEED: 200,
+  PLAYER_SPEED: 300,
   SCORE_PER_SECOND: 1,
   UI_REFRESH_HZ: 60,
-  MAP_SIZE: 1000,
-  MAP_TILE: 50,
+  MAP_SIZE: 7000,
+  MAP_TILE: 70,
   MSG_TYPES: {
     JOIN_GAME: 'join_game',
     GAME_UPDATE: 'update',
     INPUT: 'input',
     GAME_OVER: 'dead',
     PING: 'PINGPONG',
-    PONG: 'PONGPING'
+    PONG: 'PONGPING',
+    RESIZEWINDOW : 'ResizeWin'
   },
 
   INPUT: {

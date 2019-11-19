@@ -13,8 +13,12 @@ class Player extends ObjectClass {
     this.spawn = {x: xCase, y: yCase}
     var r = 255*Math.random()|0,g = 255*Math.random()|0,b = 255*Math.random()|0;
     this.couleur = 'rgb(' + r + ',' + g + ',' + b + ')';
+    this.lastCaseArea = false;
   }
 
+  setLastArea(bool){
+    this.lastCaseArea = bool;
+  }
   update(dt) {
     
     var dir = this.direction;
