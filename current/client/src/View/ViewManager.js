@@ -4,6 +4,13 @@ var equal = require('deep-equal');
 const Constants = require('../shared/constants');
 const { MAP_SIZE } = Constants;
 
+var times = [];
+var fps;
+
+const round = (num) => {
+  return Math.round(num * 10) / 10;
+}
+
 class ViewManager{
 
     constructor(networkManager){
@@ -22,18 +29,15 @@ class ViewManager{
         window.addEventListener('resize', debounce(40, this.setCanvasDimensions));
         this.usernameInput.focus();
         this.playButton = document.getElementById('play-button');
-        /*this.playButton.onclick = () => {
-            this.networkManager.play(this.usernameInput.value);
-            this.playMenu.classList.add('hidden');
-            this.leaderboard.classList.remove('hidden');
-            this.startRendering();
-           // initState();
-           // startCapturingInput();
-           // this.setLeaderboardHidden(false);
-        };*/
+        
         this.lastState = {};
     //    this.initRender();
         this.canvasMiniMap = document.getElementById('mini-map-canvas');
+      
+     
+        var uri = 'worker_mini_map.js';
+        var monWorker = new Worker(uri);
+      
     }
 
     renderLeaderboard(leaderboard){
@@ -60,6 +64,16 @@ class ViewManager{
       })
     }
 
+    renderFPS = () => {
+      const now = performance.now();
+      while (times.length > 0 && times[0] <= now - 1000) {
+        times.shift();
+      }
+      times.push(now);
+      fps = times.length;
+      document.getElementById('fps').innerText = fps;
+    }
+
     setCanvasDimensions = () => {
         // On small screens (e.g. phones), we want to "zoom out" so players can still see at least
         // 800 in-game units of width.
@@ -76,32 +90,54 @@ class ViewManager{
         this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
+    drawRecurseQuad = (x,y,i,me) => {
+
+        if(i >= Constants.MAP_SIZE/Constants.MAP_TILE) return;
+
+        this.context.beginPath();
+        this.context.moveTo(x+i*Constants.MAP_TILE,y);
+        this.context.lineTo(x+i*Constants.MAP_TILE,y+Constants.MAP_SIZE);
+        this.context.stroke();
+
+        this.context.beginPath();
+        this.context.moveTo(x,y+i*Constants.MAP_TILE);
+        this.context.lineTo(x+Constants.MAP_SIZE, y+i*Constants.MAP_TILE);
+        this.context.stroke();
+
+        this.drawRecurseQuad(x,y,i+1,me);
+    }
+
    renderMap(map,me){
       // Draw boundaries
       this.context.strokeStyle = 'black';
       this.context.lineWidth = 1;
       var topLeftMap = {x: this.canvas.width / 2 - me.x, y: this.canvas.height / 2 - me.y};
-      this.context.strokeRect(topLeftMap.x, topLeftMap.y, MAP_SIZE, MAP_SIZE);
-      
+
+      this.context.save();
+      this.context.fillStyle ='rgb(64,64,64)';
+      this.context.rect(topLeftMap.x, topLeftMap.y, MAP_SIZE, MAP_SIZE);
+      this.context.fill();
+      this.context.stroke();
+      this.context.strokeStyle ="green";
+      this.drawRecurseQuad(topLeftMap.x, topLeftMap.y,0,me);
+      this.context.restore();
+
+
+      this.context.save();
       map.forEach((element) => {
         var caseMap = element.value;
-        if(this.isInCamera(me,caseMap.x,caseMap.y)) {
-          this.context.save();
+        let xrect = round(topLeftMap.x+caseMap.x-Constants.MAP_TILE/2);
+        let yrect = round(topLeftMap.y+caseMap.y-Constants.MAP_TILE/2);
+
         if(caseMap.type === Constants.TYPECASE.VIDE) {
-          this.context.beginPath();
+        /*  this.context.beginPath();
           this.context.fillStyle ='rgb(64,64,64)';
           this.context.strokeStyle ="green";
-          this.context.rect(topLeftMap.x+caseMap.x-Constants.MAP_TILE/2, topLeftMap.y+caseMap.y-Constants.MAP_TILE/2, Constants.MAP_TILE, Constants.MAP_TILE);
+          this.context.rect(xrect, yrect, Constants.MAP_TILE, Constants.MAP_TILE);
          // this.context.fill();
-          this.context.stroke();
+          this.context.stroke();*/
         }
         else if(caseMap.type === Constants.TYPECASE.PATH){  
-          this.context.beginPath();
-          this.context.fillStyle ='rgb(64,64,64)';
-          this.context.strokeStyle ="green";
-          this.context.rect(topLeftMap.x+caseMap.x-Constants.MAP_TILE/2, topLeftMap.y+caseMap.y-Constants.MAP_TILE/2, Constants.MAP_TILE, Constants.MAP_TILE);
-        //  this.context.fill();
-          this.context.stroke();
           this.context.beginPath();
           this.context.fillStyle = caseMap.color;
           this.context.arc( topLeftMap.x+caseMap.x, topLeftMap.y+caseMap.y, Constants.MAP_TILE/4, 0, 2*Math.PI, true);
@@ -110,21 +146,21 @@ class ViewManager{
         }else if(caseMap.type === Constants.TYPECASE.AREA){  
           this.context.beginPath();
           this.context.fillStyle = caseMap.color;
-          this.context.strokeStyle ="green";
-          this.context.rect(topLeftMap.x+caseMap.x-Constants.MAP_TILE/2, topLeftMap.y+caseMap.y-Constants.MAP_TILE/2, Constants.MAP_TILE, Constants.MAP_TILE);
+       //   this.context.strokeStyle =	"rgb(0, 191, 255)";
+          this.context.rect(xrect, yrect, Constants.MAP_TILE, Constants.MAP_TILE);
           this.context.fill();
-          this.context.stroke();
+      //    this.context.stroke();
           if(caseMap.path !== undefined) {
             this.context.beginPath();
             this.context.fillStyle = caseMap.path.color;
             this.context.arc( topLeftMap.x+caseMap.x, topLeftMap.y+caseMap.y, Constants.MAP_TILE/4, 0, 2*Math.PI, true);
             this.context.fill();
             this.context.stroke();
-          }
-        }
-        this.context.restore();
+          }     
+        
       }
       });
+      this.context.restore();
    }
 
     renderPlayer = (me, player) => {
@@ -156,14 +192,14 @@ class ViewManager{
           var ctx = this.canvasMiniMap.getContext('2d'); 
           ctx.clearRect(0,0, Constants.MAP_SIZE/Constants.MAP_TILE, Constants.MAP_SIZE/Constants.MAP_TILE)
          // console.log(this.miniMap)
-          this.miniMap.forEach((element) => {
+        /*  this.miniMap.forEach((element) => {
             ctx.save();
             ctx.beginPath();
             ctx.fillStyle = element.value.color;
             ctx.rect(element.key.x,  element.key.y, 1, 1);
             ctx.fill();
             ctx.restore();
-          });
+          });*/
          // console.log(this.miniMap)
        /*   for(var y = 0; y < this.miniMap.length; y++){
             for(var x = 0; x < this.miniMap[y].length; x++){
@@ -185,14 +221,15 @@ class ViewManager{
           if (!me || !map) {return;}
           if(this.miniMap !== miniMap) {
             this.miniMap = miniMap
-            this.renderMiniMap();
+         //   this.renderMiniMap();
           }
           this.context.clearRect(0,0, this.canvas.width, this.canvas.height)
           this.renderBackground();
           this.renderLeaderboard(leaderboard);
-          this.renderMap(map,me);
+         this.renderMap(map,me);
           this.renderPlayer(me, me);
           others.forEach(this.renderPlayer.bind(null, me));
+          this.renderFPS();
       }
       
       startRendering() {

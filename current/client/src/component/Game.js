@@ -112,6 +112,9 @@ export default class Game extends Component {
                     <button id="reconnect-button">RECONNECT</button>
                     </div>
                 </div>
+                <div id="fps" >
+                   
+                </div>
             </div>
         );
     }

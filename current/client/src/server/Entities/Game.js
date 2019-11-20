@@ -121,7 +121,7 @@ class Game {
     const leaderboard = this.getLeaderboard();
     
     
-    if(this.mapAreaHaveChange) this.minimap = this.map.getMiniMap();
+//    if(this.mapAreaHaveChange) this.minimap = this.map.getMiniMap();
     const minimap = this.minimap;
     Object.keys(this.sockets).forEach(playerID => {
       const socket = this.sockets[playerID];

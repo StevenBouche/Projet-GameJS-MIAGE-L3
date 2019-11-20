@@ -109,7 +109,7 @@ module.exports = class Matrice {
     getMapPlayer(me){    
         var elem = this.getCaseOfXY(me.x,me.y);
       //  console.log(elem)
-        return this.map.filter(element => element.key.x >= elem.x - 15 && element.key.x <= elem.x + 15 && element.key.y >= elem.y - 8 && element.key.y <= elem.y + 8);
+        return this.map.filter(element => element.key.x >= elem.x - 15 && element.key.x <= elem.x + 15 && element.key.y >= elem.y - 8 && element.key.y <= elem.y + 8 && element.value.type != Constants.TYPECASE.Vide);
     }
 
     getMiniMap(){
