@@ -68,9 +68,11 @@ module.exports = class Matrice {
         return {x: x, y: y};
     }
 
-    getNbAreaPlayer(playerid){
-        var tab = this.map.filter(element => this.isCaseAreaPlayer(element.key.x,element.key.y,playerid));
-        return tab.length;
+    getNbAreaPlayer(player){
+        this.map.forEach((element) => {
+            if(element.value.type == Constants.TYPECASE.AREA) player[element.value.idPlayer].score += 1;
+        });
+       
     }
 
     delCaseOf(playerID){

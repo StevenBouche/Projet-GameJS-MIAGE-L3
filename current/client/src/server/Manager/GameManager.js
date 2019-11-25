@@ -1,10 +1,11 @@
 const Game = require('../Entities/Game');
+const Constants = require('./../../shared/constants');
 
 class GameManager{
 
     constructor(){
         this.game = new Game();
-        this.int = setInterval(this.game.update,1000/60)
+        this.int = setInterval(this.game.update,1000/Constants.UI_REFRESH_HZ);
     }
 
     addPlayer(socket, username) {

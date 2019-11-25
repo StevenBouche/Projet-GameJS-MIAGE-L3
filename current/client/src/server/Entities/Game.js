@@ -46,6 +46,10 @@ class Game {
     if (this.players[socket.id]) this.players[socket.id].updateState(dir);
   }
 
+  getNbAreaPlayers = () => {
+
+  }
+
   update = () => { 
     const now = Date.now();
     const dt = (now - this.lastUpdateTime) / 1000;
@@ -82,6 +86,7 @@ class Game {
                     this.map.pathToArea(player);
                     player.setLastArea(true);
                     this.mapAreaHaveChange = true;
+                    this.map.getNbAreaPlayer(this.players);
                   }
                 }
                 else this.map.addPathOnArea(res.x,res.y,player);
@@ -89,31 +94,6 @@ class Game {
             default:
                 break;
           }
-
-/*
-          //si je retourne sur mon path je meurt
-          if(this.map.isCasePathPlayer(res.x,res.y,player.id)) this.playerDie(player.id);
-          //si je tombe sur une case vide devient mon path
-          else if (this.map.isCaseEmpty(res.x,res.y)) this.map.setCaseOfMap(res.x,res.y,value);
-          //si c'est une case area a moi je regarde pour construire et tue si un joueur a un path dessus
-          else if (this.map.isCaseAreaPlayer(res.x,res.y,player.id)) {
-              if(elem.value.path != undefined) this.playerDie(elem.value.path.idPlayer);
-              this.map.pathToArea(player);
-          }
-          // si case area autre joueur j'add mon path sur son area 
-          else if (this.map.isCaseAreaOtherPlayer(res.x,res.y,player.id)) {
-            if(elem.value.path != undefined && elem.value.path.idPlayer == player.id) this.playerDie(player.id);
-            else this.map.addPathOnArea(res.x,res.y,player);
-          }
-          //si c'est un chemin d'un autre joueur il meurt et devient mon path
-          else if(this.map.isCasePathOtherPlayer(res.x,res.y,player.id)){
-            this.playerDie(elem.value.idPlayer);
-            this.map.setCaseOfMap(res.x,res.y,value);
-          }*/ 
-        }
-        if (this.players[playerID] != undefined) {
-
-          this.players[playerID].score = this.map.getNbAreaPlayer(playerID);
         }
       }
     });
