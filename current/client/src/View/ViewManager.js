@@ -8,7 +8,7 @@ var times = [];
 var fps;
 
 const round = (num) => {
-  return Math.round(num * 10) / 10;
+  return Math.round(num);
 }
 
 class ViewManager{
@@ -35,8 +35,8 @@ class ViewManager{
         this.canvasMiniMap = document.getElementById('mini-map-canvas');
       
      
-        var uri = 'worker_mini_map.js';
-        var monWorker = new Worker(uri);
+      //  var uri = 'worker_mini_map.js';
+      //  var monWorker = new Worker(uri);
       
     }
 
@@ -95,13 +95,13 @@ class ViewManager{
         if(i >= Constants.MAP_SIZE/Constants.MAP_TILE) return;
 
         this.context.beginPath();
-        this.context.moveTo(x+i*Constants.MAP_TILE,y);
-        this.context.lineTo(x+i*Constants.MAP_TILE,y+Constants.MAP_SIZE);
+        this.context.moveTo(round(x+i*Constants.MAP_TILE),round(y));
+        this.context.lineTo(round(x+i*Constants.MAP_TILE),round(y+Constants.MAP_SIZE));
         this.context.stroke();
 
         this.context.beginPath();
-        this.context.moveTo(x,y+i*Constants.MAP_TILE);
-        this.context.lineTo(x+Constants.MAP_SIZE, y+i*Constants.MAP_TILE);
+        this.context.moveTo(round(x),round(y+i*Constants.MAP_TILE));
+        this.context.lineTo(round(x+Constants.MAP_SIZE), round(y+i*Constants.MAP_TILE));
         this.context.stroke();
 
         this.drawRecurseQuad(x,y,i+1,me);
@@ -109,6 +109,7 @@ class ViewManager{
 
    renderMap(map,me){
       // Draw boundaries
+      map = map.filter(element => element.value.type != Constants.TYPECASE.VIDE && this.isInCamera(me,element.value.x,element.value.y) );
       this.context.strokeStyle = 'black';
       this.context.lineWidth = 1;
       var topLeftMap = {x: this.canvas.width / 2 - me.x, y: this.canvas.height / 2 - me.y};
@@ -118,16 +119,13 @@ class ViewManager{
       this.context.rect(topLeftMap.x, topLeftMap.y, MAP_SIZE, MAP_SIZE);
       this.context.fill();
       this.context.stroke();
-      this.context.strokeStyle ="green";
-      this.drawRecurseQuad(topLeftMap.x, topLeftMap.y,0,me);
       this.context.restore();
-
 
       this.context.save();
       map.forEach((element) => {
-        var caseMap = element.value;
-        let xrect = round(topLeftMap.x+caseMap.x-Constants.MAP_TILE/2);
-        let yrect = round(topLeftMap.y+caseMap.y-Constants.MAP_TILE/2);
+      var caseMap = element.value;
+      let xrect = round(topLeftMap.x+caseMap.x-Constants.MAP_TILE/2);
+      let yrect = round(topLeftMap.y+caseMap.y-Constants.MAP_TILE/2);
 
         if(caseMap.type === Constants.TYPECASE.VIDE) {
         /*  this.context.beginPath();
@@ -160,6 +158,11 @@ class ViewManager{
         
       }
       });
+      this.context.restore();
+
+      this.context.save();
+      this.context.strokeStyle ="green";
+      this.drawRecurseQuad(topLeftMap.x, topLeftMap.y,0,me);
       this.context.restore();
    }
 
@@ -226,9 +229,9 @@ class ViewManager{
           this.context.clearRect(0,0, this.canvas.width, this.canvas.height)
           this.renderBackground();
           this.renderLeaderboard(leaderboard);
-         this.renderMap(map,me);
+          this.renderMap(map,me);
           this.renderPlayer(me, me);
-          others.forEach(this.renderPlayer.bind(null, me));
+         // others.forEach(this.renderPlayer.bind(null, me));
           this.renderFPS();
       }
       

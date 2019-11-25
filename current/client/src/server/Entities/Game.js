@@ -3,6 +3,26 @@ const Matrice = require('./Matrice')
 const Player = require('./player');
 const {TYPECASE, MSG_TYPES, MAP_SIZE} = require('../../shared/constants');
 var equal = require('deep-equal');
+const { Worker } = require('worker_threads')
+
+function runService(workerData) {
+    return new Promise((resolve, reject) => {
+      const worker = new Worker('./service.js', { workerData });
+      worker.on('message', resolve);
+      worker.on('error', reject);
+      worker.on('exit', (code) => {
+        if (code !== 0)
+          reject(new Error(`Worker stopped with exit code ${code}`));
+      })
+    })
+  }
+  
+  async function run() {
+    const result = await runService('world')
+    console.log("result thread");
+    console.log(result);
+  }
+
 
 class Game {
   constructor() {
@@ -13,6 +33,7 @@ class Game {
     this.shouldSendUpdate = false;
     this.mapAreaHaveChange = false;
     this.minimap = undefined;
+    run();
   }
 
   addPlayer(socket, username) {
@@ -64,11 +85,8 @@ class Game {
         var b = player.setCurrentCase(res);
         //NEW CASE
         if(b) {
-
           var value = {type: TYPECASE.PATH, idPlayer: playerID, color: player.couleur};
           var elem = this.map.getElementMap(res.x,res.y);
-
-
           switch (elem.value.type) {
             case TYPECASE.VIDE:
                 this.map.setCaseOfMap(res.x,res.y,value);
@@ -127,7 +145,6 @@ class Game {
       t: Date.now(),
       me: player.serializeForUpdate(),
       map: this.map.getMapPlayer(player.serializeForUpdate()),
-
       others: nearbyPlayers.map(p => p.serializeForUpdate()),
       leaderboard,
     };

@@ -108,10 +108,21 @@ module.exports = class Matrice {
         }
     }
 
+    isIn(element,x,y){
+        var elem = this.getCaseOfXY(x,y);
+        return (element.key.x >= elem.x - 15 && element.key.x <= elem.x + 15 && element.key.y >= elem.y - 8 && element.key.y <= elem.y + 8);
+    }
+
     getMapPlayer(me){    
         var elem = this.getCaseOfXY(me.x,me.y);
       //  console.log(elem)
-        return this.map.filter(element => element.key.x >= elem.x - 15 && element.key.x <= elem.x + 15 && element.key.y >= elem.y - 8 && element.key.y <= elem.y + 8 && element.value.type != Constants.TYPECASE.Vide);
+      var elementtab = [];
+      for(var i = 0; i < this.map.length; i++){
+          var element = this.map[i];
+          if( element.value.type != Constants.TYPECASE.Vide && this.isIn(element,me.x,me.y)) elementtab.push(element);     
+      }
+      return elementtab;
+     //   return this.map.filter(element => element.key.x >= elem.x - 15 && element.key.x <= elem.x + 15 && element.key.y >= elem.y - 8 && element.key.y <= elem.y + 8 && element.value.type != Constants.TYPECASE.Vide);
     }
 
     getMiniMap(){
