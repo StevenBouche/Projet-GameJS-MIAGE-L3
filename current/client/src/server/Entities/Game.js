@@ -1,28 +1,21 @@
-//const Map = require('./Map');
 const Matrice = require('./Matrice')
 const Player = require('./player');
-const {TYPECASE, MSG_TYPES, MAP_SIZE} = require('../../shared/constants');
+const {TYPECASE, MSG_TYPES, MAP_SIZE, UI_REFRESH_HZ} = require('../../shared/constants');
 var equal = require('deep-equal');
-const { Worker } = require('worker_threads')
+const { Worker, MessageChannel } = require('worker_threads')
 
-function runService(workerData) {
-    return new Promise((resolve, reject) => {
-      const worker = new Worker('./service.js', { workerData });
-      worker.on('message', resolve);
-      worker.on('error', reject);
-      worker.on('exit', (code) => {
-        if (code !== 0)
-          reject(new Error(`Worker stopped with exit code ${code}`));
-      })
+const runServiceMapPlayer = (workerData,game) => {
+    const { port1, port2 } = new MessageChannel();
+    port1.on('message', (result) => { port1.postMessage({players: game.players, map: game.map.map}); });
+    const worker = new Worker('./service.js', { workerData });
+    worker.on('message', (data) => {game.setMapPlayer(data)});
+    worker.on('error', (error) => {console.log("Error from thread "+error)});
+    worker.on('exit', (code) => {
+      if (code !== 0) throw new Error(`Worker stopped with exit code ${code}`);
+      worker.terminate();
     })
-  }
-  
-  async function run() {
-    const result = await runService('world')
-    console.log("result thread");
-    console.log(result);
-  }
-
+    worker.postMessage({port: port2},[port2]);
+}
 
 class Game {
   constructor() {
@@ -32,19 +25,21 @@ class Game {
     this.lastUpdateTime = Date.now();
     this.shouldSendUpdate = false;
     this.mapAreaHaveChange = false;
-    this.minimap = undefined;
-    run();
+    this.minimap = undefined; 
+    runServiceMapPlayer({},this);
+  }
+
+  setMapPlayer = (tabmap) => {
+    var { id, map} = tabmap;
+    if(id != undefined && this.players[id] != undefined) this.players[id].map = map;
   }
 
   addPlayer(socket, username) {
     this.sockets[socket.id] = socket;
     var caseM = this.map.getRandomCaseMap(); // x & y  Generate a position to start this player at.
-
-    //TODO CONDITION DE SORTIE
-    while (!this.map.isCaseEmpty(caseM.x, caseM.y)){
+    while (!this.map.isCaseEmpty(caseM.x, caseM.y)){ //TODO CONDITION DE SORTIE
       caseM = this.map.getRandomCaseMap();
     }
-    
     const xy = this.map.getXYCenterfromCase(caseM.x,caseM.y);
     this.players[socket.id] = new Player(socket.id, username, xy.x, xy.y,caseM.x,caseM.y);
     this.map.addSpawPlayer(this.players[socket.id]);
@@ -67,57 +62,58 @@ class Game {
     if (this.players[socket.id]) this.players[socket.id].updateState(dir);
   }
 
-  getNbAreaPlayers = () => {
+  actionEmpty = (player,x,y,value) => {
+    this.map.setCaseOfMap(x,y,value);
+    player.setLastArea(false);
+  }
 
+  actionPath = (elem,player,x,y,value) => {
+    if(elem.value.idPlayer == player.id) this.playerDie(player.id);
+    else { this.playerDie(elem.value.idPlayer); this.map.setCaseOfMap(x,y,value);}
+    player.setLastArea(false);
+  }
+
+  actionArea = (elem,player,x,y) => {
+    if(elem.value.path != undefined) this.playerDie(elem.value.path.idPlayer);
+    if(elem.value.idPlayer == player.id) {
+      if(!player.lastCaseArea) {
+        this.map.pathToArea(player);
+        player.setLastArea(true);
+        this.mapAreaHaveChange = true;
+        this.map.getNbAreaPlayer(this.players);
+      }
+    }
+    else this.map.addPathOnArea(x,y,player);
   }
 
   update = () => { 
+
+    //DeltaTime
     const now = Date.now();
     const dt = (now - this.lastUpdateTime) / 1000;
     this.lastUpdateTime = now;
 
-    // Update each player
-    Object.keys(this.sockets).forEach(playerID => {
+    Object.keys(this.sockets).forEach(playerID => { // update des joueurs
       const player = this.players[playerID];
       if(player != undefined){
         player.update(dt);
         var res = this.map.getCaseOfXY(player.x,player.y);
         var b = player.setCurrentCase(res);
-        //NEW CASE
-        if(b) {
+        
+        if(b) { // Joueur est dans une nouvelle case
           var value = {type: TYPECASE.PATH, idPlayer: playerID, color: player.couleur};
           var elem = this.map.getElementMap(res.x,res.y);
           switch (elem.value.type) {
-            case TYPECASE.VIDE:
-                this.map.setCaseOfMap(res.x,res.y,value);
-                player.setLastArea(false);
-                break;
-            case TYPECASE.PATH:
-                if(elem.value.idPlayer == player.id) this.playerDie(player.id);
-                else { this.playerDie(elem.value.idPlayer); this.map.setCaseOfMap(res.x,res.y,value);}
-                player.setLastArea(false);
-                break;
-            case TYPECASE.AREA:
-                if(elem.value.path != undefined) this.playerDie(elem.value.path.idPlayer);
-                if(elem.value.idPlayer == player.id) {
-                  if(!player.lastCaseArea) {
-                    this.map.pathToArea(player);
-                    player.setLastArea(true);
-                    this.mapAreaHaveChange = true;
-                    this.map.getNbAreaPlayer(this.players);
-                  }
-                }
-                else this.map.addPathOnArea(res.x,res.y,player);
-                break;
-            default:
-                break;
+            case TYPECASE.VIDE: this.actionEmpty(player,res.x,res.y,value); break;
+            case TYPECASE.PATH: this.actionPath(elem,player,res.x,res.y,value); break;
+            case TYPECASE.AREA: this.actionArea(elem,player,res.x,res.y); break;
+            default: break;
           }
         }
       }
     });
 
     const leaderboard = this.getLeaderboard();
-    
     
 //    if(this.mapAreaHaveChange) this.minimap = this.map.getMiniMap();
     const minimap = this.minimap;
@@ -141,10 +137,11 @@ class Game {
     const nearbyPlayers = Object.values(this.players).filter(
       p => p !== player && p.distanceTo(player) <= MAP_SIZE,
     );
+
     return {
       t: Date.now(),
       me: player.serializeForUpdate(),
-      map: this.map.getMapPlayer(player.serializeForUpdate()),
+      map: /*this.map.getMapPlayer(player.serializeForUpdate()),*/ player.map,
       others: nearbyPlayers.map(p => p.serializeForUpdate()),
       leaderboard,
     };

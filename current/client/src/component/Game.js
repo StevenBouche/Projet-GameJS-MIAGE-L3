@@ -20,7 +20,9 @@ export default class Game extends Component {
     componentDidMount(){
        // this.setState({stateGame: new StateGame()});
         this.setState({networkManager: new NetworkManager(this)});  
-        this.setState({viewManager: new ViewManager()});
+        this.setState({viewManager: new ViewManager()}, () => {
+            this.state.viewManager.stopRendering();
+        });
         this.setState({keyboardListener: new KeyboardListener()}, () => {
             this.state.keyboardListener.addObserver(this);
         });

@@ -17,7 +17,6 @@ class ViewManager{
         this.currentGameState = {};
         this.networkManager = networkManager;
         this.animMenu = undefined;
-
         this.miniMap = undefined;
         this.playMenu = document.getElementById('play-menu');
         this.playButton = document.getElementById('play-button');
@@ -28,16 +27,10 @@ class ViewManager{
         this.setCanvasDimensions();
         window.addEventListener('resize', debounce(40, this.setCanvasDimensions));
         this.usernameInput.focus();
-        this.playButton = document.getElementById('play-button');
-        
+        this.playButton = document.getElementById('play-button');   
         this.lastState = {};
-    //    this.initRender();
         this.canvasMiniMap = document.getElementById('mini-map-canvas');
-      
-     
-      //  var uri = 'worker_mini_map.js';
-      //  var monWorker = new Worker(uri);
-      
+       // this.startRendering();
     }
 
     renderLeaderboard(leaderboard){
@@ -71,7 +64,7 @@ class ViewManager{
       }
       times.push(now);
       fps = times.length;
-      document.getElementById('fps').innerText = fps;
+      document.getElementById('fps').innerText = "FPS : "+fps;
     }
 
     setCanvasDimensions = () => {
@@ -127,15 +120,7 @@ class ViewManager{
       let xrect = round(topLeftMap.x+caseMap.x-Constants.MAP_TILE/2);
       let yrect = round(topLeftMap.y+caseMap.y-Constants.MAP_TILE/2);
 
-        if(caseMap.type === Constants.TYPECASE.VIDE) {
-        /*  this.context.beginPath();
-          this.context.fillStyle ='rgb(64,64,64)';
-          this.context.strokeStyle ="green";
-          this.context.rect(xrect, yrect, Constants.MAP_TILE, Constants.MAP_TILE);
-         // this.context.fill();
-          this.context.stroke();*/
-        }
-        else if(caseMap.type === Constants.TYPECASE.PATH){  
+        if(caseMap.type === Constants.TYPECASE.PATH){  
           this.context.beginPath();
           this.context.fillStyle = caseMap.color;
           this.context.arc( topLeftMap.x+caseMap.x, topLeftMap.y+caseMap.y, Constants.MAP_TILE/4, 0, 2*Math.PI, true);
@@ -144,10 +129,8 @@ class ViewManager{
         }else if(caseMap.type === Constants.TYPECASE.AREA){  
           this.context.beginPath();
           this.context.fillStyle = caseMap.color;
-       //   this.context.strokeStyle =	"rgb(0, 191, 255)";
           this.context.rect(xrect, yrect, Constants.MAP_TILE, Constants.MAP_TILE);
           this.context.fill();
-      //    this.context.stroke();
           if(caseMap.path !== undefined) {
             this.context.beginPath();
             this.context.fillStyle = caseMap.path.color;
@@ -184,10 +167,10 @@ class ViewManager{
       }
 
       renderMainMenu = () => {
-       // if (this.animMenu == undefined ) this.animMenu = new AnimationMenu(this.canvas.width,this.canvas.height);
-       // this.animMenu.draw(this.context);
+        if (this.animMenu == undefined ) this.animMenu = new AnimationMenu(this.canvas.width,this.canvas.height);
+      //  this.renderBackground();
+        this.animMenu.draw(this.context);
        // console.log("render")
-        this.renderBackground();
       }
 
       renderMiniMap = () => {
@@ -231,18 +214,19 @@ class ViewManager{
           this.renderLeaderboard(leaderboard);
           this.renderMap(map,me);
           this.renderPlayer(me, me);
-         // others.forEach(this.renderPlayer.bind(null, me));
+          others.forEach(this.renderPlayer.bind(null, me));
           this.renderFPS();
       }
       
       startRendering() {
        clearInterval(this.renderInterval);
+       this.animMenu = undefined;
        this.renderInterval = setInterval(this.render, 1000 / Constants.UI_REFRESH_HZ);
       }
       
       stopRendering() {
         clearInterval(this.renderInterval);
-        this.playMenu.classList.remove('hidden');
+       // this.playMenu.classList.remove('hidden');
         this.renderInterval = setInterval(this.renderMainMenu, 1000 / Constants.UI_REFRESH_HZ);
       }
 
