@@ -60,22 +60,52 @@ module.exports = class MatriceMap {
 */
     delCaseOf(playerID){
         //TODO ASYNC ?
-        let tab = this.hashMap.keys;
+        let tab = Array.from(this.hashMap.keys);
 
         tab.forEach((key) => {
             let { x , y } = key.content;
             let element = this.getElementMap(x,y);
             if(element != undefined) {
-                if(element.type === Constants.TYPECASE.PATH && element.idPlayer === playerID) this.hashMap.delete(key.content);
-                else if(element.type == Constants.TYPECASE.AREA){
-                    if(element.idPlayer === playerID) {
-                        if(element.path == undefined) this.hashMap.delete(key.content);
+
+                if( // TODO Simplification condition
+                    (element.type === Constants.TYPECASE.PATH && element.idPlayer === playerID) ||
+                    (element.type === Constants.TYPECASE.AREA && element.idPlayer === playerID && element.path === undefined)) {
+                    this.hashMap.delete(key.content);      
+                }
+                else if( 
+                    element.type === Constants.TYPECASE.AREA && 
+                    element.path !== undefined && 
+                    element.path.idPlayer === playerID){
+                        element.path = undefined; 
+                        this.setCaseOfMap(x,y,element);
+                }
+                else if (
+                    element.type === Constants.TYPECASE.AREA &&
+                    element.idPlayer === playerID && 
+                    element.path !== undefined
+                ){
+                    this.setCaseOfMap(x,y,element.path);
+                }
+/*
+                else if(element.type === Constants.TYPECASE.AREA){
+                    console.log("AREA")
+                    console.log(element.idPlayer,playerID)
+                    if(element.idPlayer == playerID) {
+                        if(element.path === undefined) {
+                            console.log("delete")
+                            
+                            this.hashMap.delete(key.content);
+                            console.log(key.content)
+                           
+                        }
                         else this.setCaseOfMap(x,y,element.path);
                     }
                     else if(element.path != undefined && element.path.idPlayer === playerID)  element.path = undefined; this.setCaseOfMap(x,y,element);
-                } 
+                } */
             }
         })
+
+ 
 
 /*
         var casePlayer = this.hashMap.buckets.filter(element => element.idPlayer === playerID);

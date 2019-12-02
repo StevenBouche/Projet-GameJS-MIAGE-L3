@@ -101,8 +101,9 @@ class ViewManager{
     }
 
    renderMap(map,me){
-      // Draw boundaries
-      map = map.filter(element => element.type != Constants.TYPECASE.VIDE && this.isInCamera(me,element.x,element.y) );
+      // Draw boundarie
+     /* if(map == undefined) return;
+      map = map.filter(element => element.type != Constants.TYPECASE.VIDE && this.isInCamera(me,element.x,element.y) );*/
       this.context.strokeStyle = 'black';
       this.context.lineWidth = 1;
       var topLeftMap = {x: this.canvas.width / 2 - me.x, y: this.canvas.height / 2 - me.y};

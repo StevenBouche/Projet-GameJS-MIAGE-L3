@@ -39,8 +39,7 @@ class AnimationMenu {
             this.element[i].x += this.element[i].speed * Math.sin(this.element[i].angle);
             this.element[i].y += this.element[i].speed * Math.cos(this.element[i].angle);
             this.collision(this.element[i]);
-       //  console.log("draw");
-           
+  
             context.save();
             context.fillStyle=this.element[i].color;
             context.translate(this.element[i].x, this.element[i].y);

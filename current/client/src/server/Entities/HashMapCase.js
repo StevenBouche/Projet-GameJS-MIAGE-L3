@@ -61,7 +61,7 @@ module.exports = class HashMapCase {
       for (let entryIndex = 0; entryIndex < values.length; entryIndex++) {
         const entry = values[entryIndex];
         if(equal(entry.key,key)) {
-          return {bucketIndex, entryIndex};
+          return {bucketIndex, entryIndex };
         }
       }
   
@@ -69,16 +69,16 @@ module.exports = class HashMapCase {
     }
   
     delete(key) {
-      const {bucketIndex, entryIndex, keyIndex} = this._getIndexes(key);
-  
-      if(entryIndex === undefined) {
-        return false;
-      }
-  
-      this.buckets[bucketIndex].splice(entryIndex, 1);
-      delete this.keys[keyIndex];
-      this.size--;
-  
-      return true;
+        const {bucketIndex, entryIndex, keyIndex} = this._getIndexes(key);
+   //     console.log(bucketIndex, entryIndex, keyIndex)
+        if(entryIndex === undefined) return false;
+        this.buckets[bucketIndex].splice(entryIndex, 1);
+        this.keys = this.keys.filter(element => !equal(element.content,key));
+     //   let index = this.keys.findIndex(element => equal(element.content,key));
+     //   console.log(index)
+      //  if(index >= 0) this.keys.splice(index,1);
+ 
+        this.size--;
+        return true;
     }
 }

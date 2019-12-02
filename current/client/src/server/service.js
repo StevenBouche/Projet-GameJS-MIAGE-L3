@@ -1,6 +1,6 @@
 // You can do any heavy stuff here, in a synchronous way
 // without blocking the "main thread"
-
+const HashMapCase = require("../server/Entities/HashMapCase")
 const Constants = require("../shared/constants")
 const { workerData, parentPort, MessagePort } = require('worker_threads')
 
@@ -10,6 +10,7 @@ var running = true;
 
 var players= [];
 var map = [];
+let hashMap = undefined;
 
 var getCaseOfXY = (x,y) => {
   var xc = Math.floor(x/Constants.MAP_TILE);
@@ -26,7 +27,10 @@ var getMapPlayer = () => {
           elementtab = [];
       for(var i = 0; i < map.length; i++){
         var element = map[i];
-        if( isIn(element,elem.x,elem.y)) elementtab.push(element);     
+        if( isIn(element,elem.x,elem.y)) {
+          let res = hashMap.get(element.content);
+          elementtab.push(res);  
+        }   
       }
       sendResult({map: elementtab, id: playerID});
     });
@@ -38,6 +42,9 @@ var getData = () => { port.postMessage("Worker get data"); }
 var loopCalcul = (data) => {
   players = data.players;
   map = data.map;
+  //console.log(data)
+  hashMap = Object.create(HashMapCase.prototype, Object.getOwnPropertyDescriptors(data.maptest));
+
   getMapPlayer();
   setTimeout(getData,1000/30);
 }

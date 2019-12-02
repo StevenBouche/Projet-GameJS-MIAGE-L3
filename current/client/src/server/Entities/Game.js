@@ -27,17 +27,27 @@ class Game {
     this.shouldSendUpdate = false;
     this.mapAreaHaveChange = false;
     this.minimap = undefined; 
-    runServiceMapPlayer({},this);
+    this.runServiceMapPlayer({});
+  }
+
+  runServiceMapPlayer = (workerData) => {
+
+    const { port1, port2 } = new MessageChannel();
+    const worker = new Worker('./service.js', { workerData });
+
+    port1.on('message', (result) => { port1.postMessage({players: this.players, map: this.map.hashMap.keys, maptest: this.map.hashMap}); });
+    worker.on('message', (data) => { this.setMapPlayer(data)});
+    worker.on('error', (error) => {console.log("Error from thread "+error)});
+    worker.on('exit', (code) => {
+      if (code !== 0) throw new Error(`Worker stopped with exit code ${code}`);
+      worker.terminate();
+    })
+    worker.postMessage({port: port2},[port2]);
   }
 
   setMapPlayer = (tabmap) => {
     var { id, map} = tabmap;
-    var tab = [];
-    map.forEach((elem) => {
-        var {x,y} = elem.content;
-        tab.push(this.map.getElementMap(x,y));
-    })
-    if(id != undefined && this.players[id] != undefined) this.players[id].map = tab;
+    if(id != undefined && this.players[id] != undefined) this.players[id].map = map;
   }
 
   addPlayer(socket, username) {
