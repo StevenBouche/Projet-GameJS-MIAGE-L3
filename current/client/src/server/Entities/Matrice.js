@@ -1,11 +1,19 @@
 const Constants = require('../../shared/constants');
-const equal = require('deep-equal')
+const equal = require('deep-equal');
+const HashMapCase = require('./HashMapCase');
 
 module.exports = class Matrice {
 
     constructor(){
         this.numberTile = Constants.MAP_SIZE / Constants.MAP_TILE;
         this.map = [];
+
+        this.hashMap = new HashMapCase(this.numberTile*this.numberTile);
+        this.hashMap.set({x:0,y:3},{content:"hello"});
+        let m = this.hashMap.get({x:0,y:3});
+        console.log(m);
+        console.log(this.hashMap.has({x:0,y:3}));
+        console.log(this.hashMap.has({x:0,y:1}));
         this.init();
     }
 
@@ -21,8 +29,24 @@ module.exports = class Matrice {
         }
     }
 
+    getElementPath(x,y){
+        return this.path[x+y*this.numberTile];
+    }
+
+    getElementArea(x,y){
+        return this.map[x+y*this.numberTile];
+    }
+
     getElementMap(x,y){
       return this.map[x+y*this.numberTile];
+    }
+
+    setElementPath(x,y,value){
+        if(this.path[x+y*this.numberTile] != undefined) this.path[x+y*this.numberTile] = value;
+    }
+
+    setElementArea(x,y,value){
+        if(this.area[x+y*this.numberTile] != undefined) this.area[x+y*this.numberTile] = value;
     }
 
     setElementMap(x,y,value){
@@ -72,7 +96,6 @@ module.exports = class Matrice {
         this.map.forEach((element) => {
             if(element.value.type == Constants.TYPECASE.AREA) player[element.value.idPlayer].score += 1;
         });
-       
     }
 
     delCaseOf(playerID){

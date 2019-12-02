@@ -17,7 +17,7 @@ var getCaseOfXY = (x,y) => {
   return {x: xc, y: yc};
 }
 
-var isIn = (element,x,y) => { return (element.key.x >= x - 15 && element.key.x <= x + 15 && element.key.y >= y - 8 && element.key.y <= y + 8); }
+var isIn = (element,x,y) => { return (element.content.x >= x - 15 && element.content.x <= x + 15 && element.content.y >= y - 8 && element.content.y <= y + 8); }
 
 var getMapPlayer = () => {
     Object.keys(players).forEach(playerID => {
@@ -26,7 +26,7 @@ var getMapPlayer = () => {
           elementtab = [];
       for(var i = 0; i < map.length; i++){
         var element = map[i];
-        if( element.value.type != Constants.TYPECASE.VIDE && isIn(element,elem.x,elem.y)) elementtab.push(element);     
+        if( isIn(element,elem.x,elem.y)) elementtab.push(element);     
       }
       sendResult({map: elementtab, id: playerID});
     });

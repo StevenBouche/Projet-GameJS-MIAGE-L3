@@ -102,7 +102,7 @@ class ViewManager{
 
    renderMap(map,me){
       // Draw boundaries
-      map = map.filter(element => element.value.type != Constants.TYPECASE.VIDE && this.isInCamera(me,element.value.x,element.value.y) );
+      map = map.filter(element => element.type != Constants.TYPECASE.VIDE && this.isInCamera(me,element.x,element.y) );
       this.context.strokeStyle = 'black';
       this.context.lineWidth = 1;
       var topLeftMap = {x: this.canvas.width / 2 - me.x, y: this.canvas.height / 2 - me.y};
@@ -116,7 +116,7 @@ class ViewManager{
 
       this.context.save();
       map.forEach((element) => {
-      var caseMap = element.value;
+      var caseMap = element;
       let xrect = round(topLeftMap.x+caseMap.x-Constants.MAP_TILE/2);
       let yrect = round(topLeftMap.y+caseMap.y-Constants.MAP_TILE/2);
 
