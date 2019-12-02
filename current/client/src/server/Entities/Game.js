@@ -46,8 +46,12 @@ class Game {
   }
 
   setMapPlayer = (tabmap) => {
-    var { id, map} = tabmap;
-    if(id != undefined && this.players[id] != undefined) this.players[id].map = map;
+    var { id, map, score} = tabmap;
+   // console.log(score)
+    if(id != undefined && this.players[id] != undefined){
+      this.players[id].map = map;
+      this.players[id].score = score;
+    } 
   }
 
   addPlayer(socket, username) {

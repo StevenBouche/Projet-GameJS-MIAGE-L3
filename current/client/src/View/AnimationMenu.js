@@ -5,7 +5,7 @@ class AnimationMenu {
     constructor(w,h){
         this.longueur = w;
         this.hauteur = h; 
-        this.nbAnim = 30;
+        this.nbAnim = 60;
 
         this.element = [];
 
@@ -25,10 +25,10 @@ class AnimationMenu {
     }
 
     collision = (c) => {
-        if (c.y  > this.hauteur || c.y  < 0) {
+        if (c.y+(c.r/2)  > this.hauteur || c.y-(c.r/2)  < 0) {
             c.angle = Math.floor(Math.random() * Math.floor(360))*(Math.PI/180);
         }
-        if (c.x  > this.longueur || c.x  < 0) {
+        if (c.x+(c.r/2)  > this.longueur || c.x-(c.r/2)  < 0) {
             c.angle = Math.floor(Math.random() * Math.floor(360))*(Math.PI/180);
         }
     }

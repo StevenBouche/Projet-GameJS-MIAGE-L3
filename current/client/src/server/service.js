@@ -22,17 +22,18 @@ var isIn = (element,x,y) => { return (element.content.x >= x - 15 && element.con
 
 var getMapPlayer = () => {
     Object.keys(players).forEach(playerID => {
+      let cpt = 0;
       var player = players[playerID],
           elem = getCaseOfXY(player.x,player.y),
           elementtab = [];
       for(var i = 0; i < map.length; i++){
         var element = map[i];
-        if( isIn(element,elem.x,elem.y)) {
-          let res = hashMap.get(element.content);
-          elementtab.push(res);  
-        }   
+        let res = hashMap.get(element.content);
+        if( isIn(element,elem.x,elem.y)) elementtab.push(res);  
+
+        if(res.type === Constants.TYPECASE.AREA && res.idPlayer === playerID) cpt++;
       }
-      sendResult({map: elementtab, id: playerID});
+      sendResult({map: elementtab, id: playerID, score: cpt});
     });
 }
 
