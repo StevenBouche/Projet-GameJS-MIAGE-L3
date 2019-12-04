@@ -1,11 +1,19 @@
 const Constants = require('../../shared/constants');
-const equal = require('deep-equal')
+const equal = require('deep-equal');
+const HashMapCase = require('./HashMapCase');
 
 module.exports = class Matrice {
 
     constructor(){
         this.numberTile = Constants.MAP_SIZE / Constants.MAP_TILE;
         this.map = [];
+
+        this.hashMap = new HashMapCase(this.numberTile*this.numberTile);
+        this.hashMap.set({x:0,y:3},{content:"hello"});
+        let m = this.hashMap.get({x:0,y:3});
+        console.log(m);
+        console.log(this.hashMap.has({x:0,y:3}));
+        console.log(this.hashMap.has({x:0,y:1}));
         this.init();
     }
 
@@ -21,8 +29,24 @@ module.exports = class Matrice {
         }
     }
 
+    getElementPath(x,y){
+        return this.path[x+y*this.numberTile];
+    }
+
+    getElementArea(x,y){
+        return this.map[x+y*this.numberTile];
+    }
+
     getElementMap(x,y){
       return this.map[x+y*this.numberTile];
+    }
+
+    setElementPath(x,y,value){
+        if(this.path[x+y*this.numberTile] != undefined) this.path[x+y*this.numberTile] = value;
+    }
+
+    setElementArea(x,y,value){
+        if(this.area[x+y*this.numberTile] != undefined) this.area[x+y*this.numberTile] = value;
     }
 
     setElementMap(x,y,value){
@@ -68,9 +92,10 @@ module.exports = class Matrice {
         return {x: x, y: y};
     }
 
-    getNbAreaPlayer(playerid){
-        var tab = this.map.filter(element => this.isCaseAreaPlayer(element.key.x,element.key.y,playerid));
-        return tab.length;
+    getNbAreaPlayer(player){
+        this.map.forEach((element) => {
+            if(element.value.type == Constants.TYPECASE.AREA) player[element.value.idPlayer].score += 1;
+        });
     }
 
     delCaseOf(playerID){
@@ -106,10 +131,21 @@ module.exports = class Matrice {
         }
     }
 
+    isIn(element,x,y){
+        var elem = this.getCaseOfXY(x,y);
+        return (element.key.x >= elem.x - 15 && element.key.x <= elem.x + 15 && element.key.y >= elem.y - 8 && element.key.y <= elem.y + 8);
+    }
+
     getMapPlayer(me){    
         var elem = this.getCaseOfXY(me.x,me.y);
       //  console.log(elem)
-        return this.map.filter(element => element.key.x >= elem.x - 15 && element.key.x <= elem.x + 15 && element.key.y >= elem.y - 8 && element.key.y <= elem.y + 8);
+      var elementtab = [];
+      for(var i = 0; i < this.map.length; i++){
+          var element = this.map[i];
+          if( element.value.type != Constants.TYPECASE.Vide && this.isIn(element,me.x,me.y)) elementtab.push(element);     
+      }
+      return elementtab;
+     //   return this.map.filter(element => element.key.x >= elem.x - 15 && element.key.x <= elem.x + 15 && element.key.y >= elem.y - 8 && element.key.y <= elem.y + 8 && element.value.type != Constants.TYPECASE.Vide);
     }
 
     getMiniMap(){

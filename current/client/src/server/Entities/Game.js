@@ -1,29 +1,65 @@
-//const Map = require('./Map');
-const Matrice = require('./Matrice')
+const Matrice = require('./Matrice');
+const MatriceMap = require('./MatriceMap')
 const Player = require('./player');
-const {TYPECASE, MSG_TYPES, MAP_SIZE} = require('../../shared/constants');
+const {TYPECASE, MSG_TYPES, MAP_SIZE, UI_REFRESH_HZ} = require('../../shared/constants');
 var equal = require('deep-equal');
+const { Worker, MessageChannel } = require('worker_threads')
+
+const runServiceMapPlayer = (workerData,game) => {
+    const { port1, port2 } = new MessageChannel();
+    port1.on('message', (result) => { port1.postMessage({players: game.players, map: game.map.hashMap.keys}); });
+    const worker = new Worker('./service.js', { workerData });
+    worker.on('message', (data) => {game.setMapPlayer(data)});
+    worker.on('error', (error) => {console.log("Error from thread "+error)});
+    worker.on('exit', (code) => {
+      if (code !== 0) throw new Error(`Worker stopped with exit code ${code}`);
+      worker.terminate();
+    })
+    worker.postMessage({port: port2},[port2]);
+}
 
 class Game {
   constructor() {
     this.sockets = {};
     this.players = {};
-    this.map = new Matrice();
+    this.map = new MatriceMap();
     this.lastUpdateTime = Date.now();
     this.shouldSendUpdate = false;
     this.mapAreaHaveChange = false;
-    this.minimap = undefined;
+    this.minimap = undefined; 
+    this.runServiceMapPlayer({});
+  }
+
+  runServiceMapPlayer = (workerData) => {
+
+    const { port1, port2 } = new MessageChannel();
+    const worker = new Worker('./service.js', { workerData });
+
+    port1.on('message', (result) => { port1.postMessage({players: this.players, map: this.map.hashMap.keys, maptest: this.map.hashMap}); });
+    worker.on('message', (data) => { this.setMapPlayer(data)});
+    worker.on('error', (error) => {console.log("Error from thread "+error)});
+    worker.on('exit', (code) => {
+      if (code !== 0) throw new Error(`Worker stopped with exit code ${code}`);
+      worker.terminate();
+    })
+    worker.postMessage({port: port2},[port2]);
+  }
+
+  setMapPlayer = (tabmap) => {
+    var { id, map, score} = tabmap;
+   // console.log(score)
+    if(id != undefined && this.players[id] != undefined){
+      this.players[id].map = map;
+      this.players[id].score = score;
+    } 
   }
 
   addPlayer(socket, username) {
     this.sockets[socket.id] = socket;
     var caseM = this.map.getRandomCaseMap(); // x & y  Generate a position to start this player at.
-
-    //TODO CONDITION DE SORTIE
-    while (!this.map.isCaseEmpty(caseM.x, caseM.y)){
+    while (!this.map.isCaseEmpty(caseM.x, caseM.y)){ //TODO CONDITION DE SORTIE
       caseM = this.map.getRandomCaseMap();
     }
-    
     const xy = this.map.getXYCenterfromCase(caseM.x,caseM.y);
     this.players[socket.id] = new Player(socket.id, username, xy.x, xy.y,caseM.x,caseM.y);
     this.map.addSpawPlayer(this.players[socket.id]);
@@ -46,82 +82,63 @@ class Game {
     if (this.players[socket.id]) this.players[socket.id].updateState(dir);
   }
 
+  actionEmpty = (player,x,y,value) => {
+    this.map.setCaseOfMap(x,y,value);
+    player.setLastArea(false);
+  }
+
+  actionPath = (elem,player,x,y,value) => {
+    if(elem.idPlayer == player.id) this.playerDie(player.id);
+    else { this.playerDie(elem.idPlayer); this.map.setCaseOfMap(x,y,value);}
+    player.setLastArea(false);
+  }
+
+  actionArea = (elem,player,x,y) => {
+    if(elem.path != undefined) this.playerDie(elem.path.idPlayer);
+    if(elem.idPlayer == player.id) {
+      if(!player.lastCaseArea) {
+        this.map.pathToArea(player);
+        player.setLastArea(true);
+        this.mapAreaHaveChange = true;
+     //   this.map.getNbAreaPlayer(this.players);
+      }
+    }
+    else this.map.addPathOnArea(x,y,player);
+  }
+
   update = () => { 
+
+    //DeltaTime
     const now = Date.now();
     const dt = (now - this.lastUpdateTime) / 1000;
     this.lastUpdateTime = now;
 
-    // Update each player
-    Object.keys(this.sockets).forEach(playerID => {
+    Object.keys(this.sockets).forEach(playerID => { // update des joueurs
       const player = this.players[playerID];
       if(player != undefined){
         player.update(dt);
         var res = this.map.getCaseOfXY(player.x,player.y);
         var b = player.setCurrentCase(res);
-        //NEW CASE
-        if(b) {
-
+        
+        if(b) { // Joueur est dans une nouvelle case
           var value = {type: TYPECASE.PATH, idPlayer: playerID, color: player.couleur};
           var elem = this.map.getElementMap(res.x,res.y);
-
-
-          switch (elem.value.type) {
-            case TYPECASE.VIDE:
-                this.map.setCaseOfMap(res.x,res.y,value);
-                player.setLastArea(false);
-                break;
-            case TYPECASE.PATH:
-                if(elem.value.idPlayer == player.id) this.playerDie(player.id);
-                else { this.playerDie(elem.value.idPlayer); this.map.setCaseOfMap(res.x,res.y,value);}
-                player.setLastArea(false);
-                break;
-            case TYPECASE.AREA:
-                if(elem.value.path != undefined) this.playerDie(elem.value.path.idPlayer);
-                if(elem.value.idPlayer == player.id) {
-                  if(!player.lastCaseArea) {
-                    this.map.pathToArea(player);
-                    player.setLastArea(true);
-                    this.mapAreaHaveChange = true;
-                  }
-                }
-                else this.map.addPathOnArea(res.x,res.y,player);
-                break;
-            default:
-                break;
+          if(elem == undefined) this.actionEmpty(player,res.x,res.y,value);
+          else {
+            switch (elem.type) {
+             // case TYPECASE.VIDE: this.actionEmpty(player,res.x,res.y,value); break;
+              case TYPECASE.PATH: this.actionPath(elem,player,res.x,res.y,value); break;
+              case TYPECASE.AREA: this.actionArea(elem,player,res.x,res.y); break;
+              default: break;
+            }
           }
-
-/*
-          //si je retourne sur mon path je meurt
-          if(this.map.isCasePathPlayer(res.x,res.y,player.id)) this.playerDie(player.id);
-          //si je tombe sur une case vide devient mon path
-          else if (this.map.isCaseEmpty(res.x,res.y)) this.map.setCaseOfMap(res.x,res.y,value);
-          //si c'est une case area a moi je regarde pour construire et tue si un joueur a un path dessus
-          else if (this.map.isCaseAreaPlayer(res.x,res.y,player.id)) {
-              if(elem.value.path != undefined) this.playerDie(elem.value.path.idPlayer);
-              this.map.pathToArea(player);
-          }
-          // si case area autre joueur j'add mon path sur son area 
-          else if (this.map.isCaseAreaOtherPlayer(res.x,res.y,player.id)) {
-            if(elem.value.path != undefined && elem.value.path.idPlayer == player.id) this.playerDie(player.id);
-            else this.map.addPathOnArea(res.x,res.y,player);
-          }
-          //si c'est un chemin d'un autre joueur il meurt et devient mon path
-          else if(this.map.isCasePathOtherPlayer(res.x,res.y,player.id)){
-            this.playerDie(elem.value.idPlayer);
-            this.map.setCaseOfMap(res.x,res.y,value);
-          }*/ 
-        }
-        if (this.players[playerID] != undefined) {
-
-          this.players[playerID].score = this.map.getNbAreaPlayer(playerID);
         }
       }
     });
 
     const leaderboard = this.getLeaderboard();
     
-    
-    if(this.mapAreaHaveChange) this.minimap = this.map.getMiniMap();
+//    if(this.mapAreaHaveChange) this.minimap = this.map.getMiniMap();
     const minimap = this.minimap;
     Object.keys(this.sockets).forEach(playerID => {
       const socket = this.sockets[playerID];
@@ -143,11 +160,11 @@ class Game {
     const nearbyPlayers = Object.values(this.players).filter(
       p => p !== player && p.distanceTo(player) <= MAP_SIZE,
     );
+
     return {
       t: Date.now(),
       me: player.serializeForUpdate(),
-      map: this.map.getMapPlayer(player.serializeForUpdate()),
-
+      map: /*this.map.getMapPlayer(player.serializeForUpdate()),*/player.map,
       others: nearbyPlayers.map(p => p.serializeForUpdate()),
       leaderboard,
     };

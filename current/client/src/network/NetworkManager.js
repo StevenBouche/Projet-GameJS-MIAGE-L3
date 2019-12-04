@@ -53,6 +53,7 @@ class NetworkManager {
   }
  
   gameUpdate = update => {
+  
     this.game.updateStateGame(update);
    // this.state = update;
   }

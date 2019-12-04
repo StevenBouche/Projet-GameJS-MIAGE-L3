@@ -20,7 +20,9 @@ export default class Game extends Component {
     componentDidMount(){
        // this.setState({stateGame: new StateGame()});
         this.setState({networkManager: new NetworkManager(this)});  
-        this.setState({viewManager: new ViewManager()});
+        this.setState({viewManager: new ViewManager()}, () => {
+            this.state.viewManager.stopRendering();
+        });
         this.setState({keyboardListener: new KeyboardListener()}, () => {
             this.state.keyboardListener.addObserver(this);
         });
@@ -71,9 +73,9 @@ export default class Game extends Component {
 
         return (
             <div>
-               <canvas id="game-canvas"></canvas>
+               <canvas id="game-canvas" moz-opaque></canvas>
                <div id="mini-map" className="hidden"> 
-                    <canvas id="mini-map-canvas"></canvas>
+                    <canvas id="mini-map-canvas" ></canvas>
                </div>
                 <div id="play-menu" className="hidden">
                     <h1>.io Game</h1>
@@ -111,6 +113,9 @@ export default class Game extends Component {
                     <hr />
                     <button id="reconnect-button">RECONNECT</button>
                     </div>
+                </div>
+                <div id="fps" >
+                   
                 </div>
             </div>
         );

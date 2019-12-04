@@ -14,6 +14,7 @@ class Player extends ObjectClass {
     var r = 255*Math.random()|0,g = 255*Math.random()|0,b = 255*Math.random()|0;
     this.couleur = 'rgb(' + r + ',' + g + ',' + b + ')';
     this.lastCaseArea = false;
+    this.map = [];
   }
 
   setLastArea(bool){
