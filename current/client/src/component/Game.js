@@ -80,6 +80,10 @@ export default class Game extends Component {
                 <div id="play-menu" className="hidden">
                     <h1>Jeux de tuiles</h1>
                     <hr/>
+                    <button id="previousSkin">Previous skin</button>
+                    <canvas id="skin" ></canvas>
+                    <button id="nextSkin">Next skin</button>
+                    <hr/>
                     <input type="text" id="username-input" placeholder="Username" />
                     <button id="play-button">PLAY</button>
                 </div>

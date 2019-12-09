@@ -1,6 +1,7 @@
 import { debounce } from 'throttle-debounce';
 import AnimationMenu from './AnimationMenu'
 import Worker from './map.worker.js';
+import Skin from '../skin/skin';
 
 var equal = require('deep-equal');
 const Constants = require('../shared/constants');
@@ -20,24 +21,32 @@ class ViewManager{
         this.networkManager = networkManager;
         this.animMenu = undefined;
         this.miniMap = undefined;
+
         this.playMenu = document.getElementById('play-menu');
         this.playButton = document.getElementById('play-button');
         this.usernameInput = document.getElementById('username-input');
         this.canvas = document.getElementById('game-canvas');
-        this.context = this.canvas.getContext('2d');    
-      
+        this.playButton = document.getElementById('play-button');   
+        this.canvasMiniMap = document.getElementById('mini-map-canvas');
         this.leaderboard = document.getElementById('leaderboard');
+
+        this.context = this.canvas.getContext('2d');    
         this.setCanvasDimensions();
-     
         window.addEventListener('resize', debounce(40, this.setCanvasDimensions));
         this.usernameInput.focus();
-        this.playButton = document.getElementById('play-button');   
+        
         this.lastState = {};
-        this.canvasMiniMap = document.getElementById('mini-map-canvas');
-       // this.startRendering();
+        this.testWorker();
 
-       this.testWorker();
-       
+        document.getElementById('previousSkin').onclick = () => { this.handleSkin(-1); }
+        document.getElementById('nextSkin').onclick = () => { this.handleSkin(1); }
+        this.skinCanvas =  document.getElementById('skin');
+        this.ctxSkin = this.skinCanvas.getContext("2d");
+
+        this.leaderboard = document.getElementById('leaderboard');
+        this.skin = undefined;
+        this.skinIndex = 0;
+        this.handleSkin(this.skinIndex);
     }
 
     testWorker = () => {
@@ -57,6 +66,14 @@ class ViewManager{
                 console.log("RENDER WORKER RESOLVE");
             } 
         };
+    }
+
+    handleSkin = (v) => {
+      this.skinIndex += v;
+      if(this.skinIndex < 0 ) this.skinIndex = Skin.nbElement;
+      else if(this.skinIndex > Skin.nbElement) this.skinIndex = 0;
+      console.log(this.skinIndex);
+      Skin.render(0,{x:0,y:0},{x:0,y:0,color:"yellow"},this.skinCanvas,this.ctxSkin)
     }
 
     renderLeaderboard(leaderboard){
@@ -177,11 +194,11 @@ class ViewManager{
    }
 
     renderPlayer = (me, player) => {
-        const { x, y } = player;
+      /*  const { x, y } = player;
       //  console.log(player)
         const canvasX = this.canvas.width / 2 + x - me.x;
         const canvasY = this.canvas.height / 2 + y - me.y;
-      
+
         // Draw ship
         this.context.save();
         this.context.fillStyle=player.color;
@@ -190,7 +207,8 @@ class ViewManager{
         this.context.arc( 0, 0, Constants.MAP_TILE/2, 0, 2*Math.PI, true);
         this.context.fill();
         this.context.stroke();
-        this.context.restore();
+        this.context.restore();*/
+        Skin.render(this.skinIndex,me,player,this.canvas,this.context);
       }
 
       renderMainMenu = () => {

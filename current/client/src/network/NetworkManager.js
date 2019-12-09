@@ -53,7 +53,6 @@ class NetworkManager {
   }
  
   gameUpdate = update => {
-  console.log(update)
     this.game.updateStateGame(update);
    // this.state = update;
   }
