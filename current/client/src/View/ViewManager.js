@@ -1,5 +1,7 @@
 import { debounce } from 'throttle-debounce';
 import AnimationMenu from './AnimationMenu'
+import Worker from './map.worker.js';
+
 var equal = require('deep-equal');
 const Constants = require('../shared/constants');
 const { MAP_SIZE } = Constants;
@@ -22,15 +24,39 @@ class ViewManager{
         this.playButton = document.getElementById('play-button');
         this.usernameInput = document.getElementById('username-input');
         this.canvas = document.getElementById('game-canvas');
-        this.context = this.canvas.getContext('2d');      
+        this.context = this.canvas.getContext('2d');    
+      
         this.leaderboard = document.getElementById('leaderboard');
         this.setCanvasDimensions();
+     
         window.addEventListener('resize', debounce(40, this.setCanvasDimensions));
         this.usernameInput.focus();
         this.playButton = document.getElementById('play-button');   
         this.lastState = {};
         this.canvasMiniMap = document.getElementById('mini-map-canvas');
        // this.startRendering();
+
+       this.testWorker();
+       
+    }
+
+    testWorker = () => {
+      let worker = new Worker()
+
+      const offscreenCanvas = this.canvasMiniMap.transferControlToOffscreen();
+
+        worker.postMessage({
+          type: 'run',
+          canvas: offscreenCanvas,
+        }, [offscreenCanvas]);
+
+        // worker.onmessage event will be invoked by the worker
+        // whenever the rendering process is done.
+        worker.onmessage = (event) => {
+            if (event.data.type === 'resolved'){
+                console.log("RENDER WORKER RESOLVE");
+            } 
+        };
     }
 
     renderLeaderboard(leaderboard){
@@ -172,6 +198,7 @@ class ViewManager{
       //  this.renderBackground();
         this.animMenu.draw(this.context);
        // console.log("render")
+     
       }
 
       renderMiniMap = () => {
@@ -217,6 +244,7 @@ class ViewManager{
           this.renderPlayer(me, me);
           others.forEach(this.renderPlayer.bind(null, me));
           this.renderFPS();
+       
       }
       
       startRendering() {

@@ -19,7 +19,6 @@ class AnimationMenu {
                 speed: 2,
                 color: 'rgb(' + r + ',' + g + ',' + b + ')'
             }
-            console.log(value)
             this.element.push(value);
         }
     }
