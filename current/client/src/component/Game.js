@@ -3,6 +3,8 @@ import NetworkManager from '../network/NetworkManager'
 import ViewManager from '../View/ViewManager'
 import KeyboardListener from '../manager/KeyboardListener'
 import StateGame from './../Model/state'
+import GameState from '../stateView/GameState'
+import { Container, Row, Col } from 'reactstrap';
 
 export default class Game extends Component {
 
@@ -10,85 +12,76 @@ export default class Game extends Component {
         networkManager: undefined,
         viewManager: undefined,
         keyboardListener: undefined,
-        playbutton: undefined,
-        usernameInput: undefined,
-        playmenu: undefined,
-        leaderboard: undefined,
-        stateGame: undefined
+        stateGame: undefined,
+        stateView: undefined
     }
 
     componentDidMount(){
        // this.setState({stateGame: new StateGame()});
         this.setState({networkManager: new NetworkManager(this)});  
         this.setState({viewManager: new ViewManager()}, () => {
-            this.state.viewManager.stopRendering();
-        });
+            this.setState({stateView: new GameState(this.state.viewManager,this.startNetwork)});
+        }); 
         this.setState({keyboardListener: new KeyboardListener()}, () => {
             this.state.keyboardListener.addObserver(this);
         });
-        this.setState({
-            playbutton: document.getElementById('play-button'),
-            usernameInput: document.getElementById('username-input'),
-            leaderboard: document.getElementById('leaderboard'),
-            playmenu: document.getElementById('play-menu')
-        }, () => {
-            this.state.playbutton.onclick = () => {
-                this.state.networkManager.play(this.state.usernameInput.value);
-                this.state.viewManager.startRendering();
-                this.setLeaderboardHidden(false);
-                this.setPlaymenuHidden(true);
-            };
-        });
+    }
+
+    startNetwork = (userInput) => {
+        console.log("startcallback")
+        this.state.networkManager.play(userInput);
+    }
+
+    disconnectFromServer = () => {
+        this.state.stateView.disconnect();
+    }
+
+    connectFromServer = () => {
+        this.state.stateView.connect();
     }
 
     onGameOver = () => {
-        var {viewManager, keyboardListener} = this.state;
-        viewManager.stopRendering();
+        var {keyboardListener, stateView} = this.state;
+        stateView.nextState();
         keyboardListener.resetInput();
-        this.setLeaderboardHidden(true);
-        this.setPlaymenuHidden(false);
     }
      
     updateInput(data){
-    //    this.state.stateGame.updateInput(data);
         this.state.networkManager.updateInput(data);
     }
 
     updateStateGame(state){
-      //  this.state.stateGame.updateStateGame(state);
         this.state.viewManager.currentGameState = state;
-    }
-
-    setLeaderboardHidden = (bool) => {
-        if(bool) this.state.leaderboard.classList.add('hidden');
-        else this.state.leaderboard.classList.remove('hidden');
-    }
-
-    setPlaymenuHidden = (bool) => {
-        if(bool) this.state.playmenu.classList.add('hidden');
-        else this.state.playmenu.classList.remove('hidden');
     }
 
     render(){
 
         return (
+            
             <div>
+                
                <canvas id="game-canvas"></canvas>
                <div id="mini-map">
                     <canvas id="mini-map-canvas" ></canvas>
                </div>
                 <div id="play-menu" className="hidden">
+
+                    
                     <h1>Jeux de tuiles</h1>
                     <hr/>
-                    <button id="previousSkin">Previous skin</button>
                     <canvas id="skin" ></canvas>
-                    <button id="nextSkin">Next skin</button>
+                    <div className="selectPlayer" > 
+                        <div> <button id="previousSkin">Previous skin</button></div>
+                        <div><button id="nextSkin">Next skin</button></div>
+                    </div>
+                    
+                    
                     <hr/>
                     <input type="text" id="username-input" placeholder="Username" />
-                    <button id="play-button">PLAY</button>
+                    <button id="play-button">Start game</button>
                 </div>
                 <div id="connexion-server" className="hidden">
-                    <h1>.io Game</h1>
+                    <h1>Jeux de tuiles</h1>
                     <hr/>
                     <h3>Connection serveur ...</h3>
                     <div className="loader"></div>
@@ -119,8 +112,18 @@ export default class Game extends Component {
                     </div>
                 </div>
                 <div id="fps" >
-                   
+                <table id='leaderboardTable'>
+                        <thead>
+                            <tr>
+                                <th>FPS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                        </tbody>
+                    </table>
                 </div>
+                <audio id="audioPlayer" src=""></audio>
             </div>
         );
     }

@@ -16,8 +16,7 @@ class NetworkManager {
 
     this.connectedPromise = new Promise(resolve => {
       this.socket.on("connect", () => {
-        document.getElementById("connexion-server").classList.add("hidden");
-        document.getElementById("play-menu").classList.remove("hidden");
+        this.game.connectFromServer();
         this.connect(game.onGameOver);
         //setInterval(this.ping, 20000);
         resolve();
@@ -64,9 +63,7 @@ class NetworkManager {
       this.socket.on(Constants.MSG_TYPES.PONG, this.setPing);
 
       this.socket.on("disconnect", () => {
-        console.log("Disconnected from server.");
-        document.getElementById("disconnect-modal").classList.remove("hidden");
-        document.getElementById("reconnect-button").onclick = () => { window.location.reload();};
+        this.game.disconnectFromServer();
       });
     });
 

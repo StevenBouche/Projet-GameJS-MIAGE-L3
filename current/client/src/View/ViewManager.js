@@ -72,7 +72,7 @@ class ViewManager{
       this.skinIndex += v;
       if(this.skinIndex < 0 ) this.skinIndex = Skin.nbElement;
       else if(this.skinIndex > Skin.nbElement) this.skinIndex = 0;
-      console.log(this.skinIndex);
+    //  console.log(this.skinIndex);
       Skin.render(0,{x:0,y:0},{x:0,y:0,color:"yellow"},this.skinCanvas,this.ctxSkin)
     }
 
@@ -107,7 +107,17 @@ class ViewManager{
       }
       times.push(now);
       fps = times.length;
-      document.getElementById('fps').innerText = "FPS : "+fps;
+
+      var tbody = document.getElementById('fps').getElementsByTagName('tbody')[0];
+      tbody.innerHTML = "";
+
+      var tr = document.createElement('tr');
+      var tdfps = document.createElement('td');
+      tdfps.innerText = fps;
+      tr.appendChild(tdfps);
+      tbody.appendChild(tr);
+
+     // document.getElementById('fps').innerText = "FPS : "+fps;
     }
 
     setCanvasDimensions = () => {
@@ -116,9 +126,9 @@ class ViewManager{
         const scaleRatio = Math.max(1, 800 / window.innerWidth);
         this.canvas.width = scaleRatio * window.innerWidth;
         this.canvas.height = scaleRatio * window.innerHeight;
-        console.log(Constants.MAP_SIZE/Constants.MAP_TILE)
-        document.getElementById("mini-map").style.height = Constants.MAP_SIZE/Constants.MAP_TILE+"px";
-        document.getElementById("mini-map").style.width = Constants.MAP_SIZE/Constants.MAP_TILE+"px";
+      //  console.log(Constants.MAP_SIZE/Constants.MAP_TILE)
+        document.getElementById("mini-map").style.height = (Constants.MAP_SIZE/Constants.MAP_TILE)*5+"px";
+        document.getElementById("mini-map").style.width = (Constants.MAP_SIZE/Constants.MAP_TILE)*5+"px";
     }
 
     renderBackground() {
