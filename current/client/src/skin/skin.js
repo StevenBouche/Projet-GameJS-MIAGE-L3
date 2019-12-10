@@ -2,7 +2,7 @@ import Constants from '../shared/constants'
 
 const skin = {};
 
-skin.nbElement = 1;
+skin.nbElement = 2;
 
 let defaultSkin = (me,player,canvas,context) => {
   const { x, y } = player;
