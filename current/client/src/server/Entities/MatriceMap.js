@@ -10,7 +10,7 @@ module.exports = class MatriceMap {
     }
 
     getMiniMap = () => {
-        return this.hashMap.buckets;
+        return this.hashMap;
     }
 
     setCaseOfMap(x,y,value){

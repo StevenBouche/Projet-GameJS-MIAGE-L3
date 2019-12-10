@@ -31,11 +31,14 @@ class ViewManager{
         this.leaderboard = document.getElementById('leaderboard');
 
         this.context = this.canvas.getContext('2d');    
+        this.offscreenSet = false;
         this.setCanvasDimensions();
         window.addEventListener('resize', debounce(40, this.setCanvasDimensions));
         this.usernameInput.focus();
         
         this.lastState = {};
+        this.worker = new Worker();
+        this.offscreenCanvas = this.canvasMiniMap.transferControlToOffscreen();
         this.testWorker();
 
         document.getElementById('previousSkin').onclick = () => { this.handleSkin(-1); }
@@ -50,22 +53,37 @@ class ViewManager{
     }
 
     testWorker = () => {
-      let worker = new Worker()
-
-      const offscreenCanvas = this.canvasMiniMap.transferControlToOffscreen();
-
-        worker.postMessage({
+      
+      const {me, others, map, leaderboard, minimap} = this.currentGameState;
+      
+        /*worker.postMessage({
           type: 'run',
-          canvas: offscreenCanvas,
-        }, [offscreenCanvas]);
+          canvas: this.offscreenCanvas,
+          minimap: minimap,
+        }, [this.offscreenCanvas]); */
+
+        /*this.worker.postMessage({
+          type: 'test',
+          minimap: minimap
+        });*/
 
         // worker.onmessage event will be invoked by the worker
         // whenever the rendering process is done.
-        worker.onmessage = (event) => {
+        this.worker.onmessage = (event) => {
+         // console.log(event.data.type);  
             if (event.data.type === 'resolved'){
-                console.log("RENDER WORKER RESOLVE");
+           //     console.log("RENDER WORKER RESOLVE");
+                this.worker.terminate();
             } 
+            else if(event.data.type === 'getData') {
+              this.worker.postMessage({
+                type: 'dataSend',
+                minimap: this.currentGameState.minimap
+              });
+            }
         };
+
+        this.worker.postMessage({type: 'setCanvas', canvas: this.offscreenCanvas}, [this.offscreenCanvas]);
     }
 
     handleSkin = (v) => {
@@ -127,8 +145,15 @@ class ViewManager{
         this.canvas.width = scaleRatio * window.innerWidth;
         this.canvas.height = scaleRatio * window.innerHeight;
       //  console.log(Constants.MAP_SIZE/Constants.MAP_TILE)
-        document.getElementById("mini-map").style.height = (Constants.MAP_SIZE/Constants.MAP_TILE)*5+"px";
-        document.getElementById("mini-map").style.width = (Constants.MAP_SIZE/Constants.MAP_TILE)*5+"px";
+        
+        if(this.offscreenSet == false) {
+          document.getElementById("mini-map").style.height = (Constants.MAP_SIZE/Constants.MAP_TILE)*Constants.MINI_MAP_SIZE +"px";
+          document.getElementById("mini-map").style.width = (Constants.MAP_SIZE/Constants.MAP_TILE)*Constants.MINI_MAP_SIZE +"px";
+          this.canvasMiniMap.height = (Constants.MAP_SIZE/Constants.MAP_TILE)*Constants.MINI_MAP_SIZE;
+          this.canvasMiniMap.width = (Constants.MAP_SIZE/Constants.MAP_TILE)*Constants.MINI_MAP_SIZE;
+          
+          this.offscreenSet = true;
+        }
     }
 
     renderBackground() {
@@ -259,10 +284,10 @@ class ViewManager{
 
       render = () => {
         //var state = this.networkManager.getCurrentState();
-          const {me, others, map, leaderboard, miniMap} = this.currentGameState;
+          const {me, others, map, leaderboard, minimap} = this.currentGameState;
           if (!me || !map) {return;}
-          if(this.miniMap !== miniMap) {
-            this.miniMap = miniMap
+          if(this.miniMap !== minimap) {
+            this.miniMap = minimap
          //   this.renderMiniMap();
           }
           this.context.clearRect(0,0, this.canvas.width, this.canvas.height)
