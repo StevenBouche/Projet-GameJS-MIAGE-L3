@@ -1,7 +1,7 @@
 const Matrice = require('./Matrice');
 const MatriceMap = require('./MatriceMap')
 const Player = require('./player');
-const {TYPECASE, MSG_TYPES, MAP_SIZE, UI_REFRESH_HZ} = require('../../shared/constants');
+const {TYPECASE, MSG_TYPES, MAP_TILE, MAP_SIZE, UI_REFRESH_HZ} = require('../../shared/constants');
 var equal = require('deep-equal');
 const { Worker, MessageChannel } = require('worker_threads')
 
@@ -20,8 +20,8 @@ const runServiceMapPlayer = (workerData,game) => {
 
 class Game {
   constructor() {
-    this.sockets = {};
-    this.players = {};
+    this.sockets = [];
+    this.players = [];
     this.map = new MatriceMap();
     this.lastUpdateTime = Date.now();
     this.shouldSendUpdate = false;
@@ -45,12 +45,25 @@ class Game {
     worker.postMessage({port: port2},[port2]);
   }
 
+  playerWin = () => {
+    let tabSock = [...Object.keys(this.players)];
+    //correction
+    Object.keys(tabSock).forEach(playerID => { // update des joueurs
+        this.playerDie(playerID);
+    });
+  }
+
   setMapPlayer = (tabmap) => {
-    var { id, map, score} = tabmap;
+    let { id, map, score} = tabmap;
+    let nbTile = (MAP_SIZE/MAP_TILE)*(MAP_SIZE/MAP_TILE);
    // console.log(score)
     if(id != undefined && this.players[id] != undefined){
-      this.players[id].map = map;
-      this.players[id].score = score;
+      if(score == 0) this.playerDie(id);
+      else if (score == nbTile) this.playerDie(id); // TODO FIN PARTIE
+      else {
+        this.players[id].map = map;
+        this.players[id].score = score;
+      }
     } 
   }
 
@@ -113,14 +126,15 @@ class Game {
     const dt = (now - this.lastUpdateTime) / 1000;
     this.lastUpdateTime = now;
 
-    Object.keys(this.sockets).forEach(playerID => { // update des joueurs
+    let tabSock = [...Object.keys(this.players)];
+
+    tabSock.forEach(playerID => { // update des joueurs
       const player = this.players[playerID];
       if(player != undefined){
         player.update(dt);
         var res = this.map.getCaseOfXY(player.x,player.y);
-        var b = player.setCurrentCase(res);
-        
-        if(b) { // Joueur est dans une nouvelle case
+
+        if(player.setCurrentCase(res)) { // Joueur est dans une nouvelle case
           var value = {type: TYPECASE.PATH, idPlayer: playerID, color: player.couleur};
           var elem = this.map.getElementMap(res.x,res.y);
           if(elem == undefined) this.actionEmpty(player,res.x,res.y,value);
@@ -139,12 +153,10 @@ class Game {
     const leaderboard = this.getLeaderboard();
     
 //    if(this.mapAreaHaveChange) this.minimap = this.map.getMiniMap();
-    const minimap = this.minimap;
     Object.keys(this.sockets).forEach(playerID => {
       const socket = this.sockets[playerID];
       const player = this.players[playerID];
       var element = this.createUpdate(player, leaderboard);
-      element.miniMap = minimap;
       socket.emit(MSG_TYPES.GAME_UPDATE, element);
     });
   }
@@ -164,7 +176,8 @@ class Game {
     return {
       t: Date.now(),
       me: player.serializeForUpdate(),
-      map: /*this.map.getMapPlayer(player.serializeForUpdate()),*/player.map,
+      map: player.map,
+      minimap: this.map.getMiniMap(),
       others: nearbyPlayers.map(p => p.serializeForUpdate()),
       leaderboard,
     };

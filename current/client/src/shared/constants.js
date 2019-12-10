@@ -6,6 +6,7 @@ module.exports = Object.freeze({
   UI_REFRESH_HZ: 100,
   MAP_SIZE: 1600,
   MAP_TILE: 80,
+  MINI_MAP_SIZE: 10,
   MSG_TYPES: {
     JOIN_GAME: 'join_game',
     GAME_UPDATE: 'update',

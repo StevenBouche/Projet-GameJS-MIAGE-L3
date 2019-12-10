@@ -89,6 +89,12 @@ button:focus {
   outline: none;
 }
 
+.selectPlayer {
+  display: flex;
+  flex-direction: row;
+  padding-bottom: 5%;
+} 
+
 #leaderboard {
   position: fixed;
   top: 10px;

@@ -1,5 +1,8 @@
 import { debounce } from 'throttle-debounce';
 import AnimationMenu from './AnimationMenu'
+import Worker from './map.worker.js';
+import Skin from '../skin/skin';
+
 var equal = require('deep-equal');
 const Constants = require('../shared/constants');
 const { MAP_SIZE } = Constants;
@@ -18,19 +21,77 @@ class ViewManager{
         this.networkManager = networkManager;
         this.animMenu = undefined;
         this.miniMap = undefined;
+
         this.playMenu = document.getElementById('play-menu');
         this.playButton = document.getElementById('play-button');
         this.usernameInput = document.getElementById('username-input');
         this.canvas = document.getElementById('game-canvas');
-        this.context = this.canvas.getContext('2d');      
+        this.playButton = document.getElementById('play-button');   
+        this.canvasMiniMap = document.getElementById('mini-map-canvas');
         this.leaderboard = document.getElementById('leaderboard');
+
+        this.context = this.canvas.getContext('2d');    
+        this.offscreenSet = false;
         this.setCanvasDimensions();
         window.addEventListener('resize', debounce(40, this.setCanvasDimensions));
         this.usernameInput.focus();
-        this.playButton = document.getElementById('play-button');   
+        
         this.lastState = {};
-        this.canvasMiniMap = document.getElementById('mini-map-canvas');
-       // this.startRendering();
+        this.worker = new Worker();
+        this.offscreenCanvas = this.canvasMiniMap.transferControlToOffscreen();
+        this.testWorker();
+
+        document.getElementById('previousSkin').onclick = () => { this.handleSkin(-1); }
+        document.getElementById('nextSkin').onclick = () => { this.handleSkin(1); }
+        this.skinCanvas =  document.getElementById('skin');
+        this.ctxSkin = this.skinCanvas.getContext("2d");
+
+        this.leaderboard = document.getElementById('leaderboard');
+        this.skin = undefined;
+        this.skinIndex = 0;
+        this.handleSkin(this.skinIndex);
+    }
+
+    testWorker = () => {
+      
+      const {me, others, map, leaderboard, minimap} = this.currentGameState;
+      
+        /*worker.postMessage({
+          type: 'run',
+          canvas: this.offscreenCanvas,
+          minimap: minimap,
+        }, [this.offscreenCanvas]); */
+
+        /*this.worker.postMessage({
+          type: 'test',
+          minimap: minimap
+        });*/
+
+        // worker.onmessage event will be invoked by the worker
+        // whenever the rendering process is done.
+        this.worker.onmessage = (event) => {
+         // console.log(event.data.type);  
+            if (event.data.type === 'resolved'){
+           //     console.log("RENDER WORKER RESOLVE");
+                this.worker.terminate();
+            } 
+            else if(event.data.type === 'getData') {
+              this.worker.postMessage({
+                type: 'dataSend',
+                minimap: this.currentGameState.minimap
+              });
+            }
+        };
+
+        this.worker.postMessage({type: 'setCanvas', canvas: this.offscreenCanvas}, [this.offscreenCanvas]);
+    }
+
+    handleSkin = (v) => {
+      this.skinIndex += v;
+      if(this.skinIndex < 0 ) this.skinIndex = Skin.nbElement;
+      else if(this.skinIndex > Skin.nbElement) this.skinIndex = 0;
+    //  console.log(this.skinIndex);
+      Skin.render(0,{x:0,y:0},{x:0,y:0,color:"yellow"},this.skinCanvas,this.ctxSkin)
     }
 
     renderLeaderboard(leaderboard){
@@ -64,7 +125,17 @@ class ViewManager{
       }
       times.push(now);
       fps = times.length;
-      document.getElementById('fps').innerText = "FPS : "+fps;
+
+      var tbody = document.getElementById('fps').getElementsByTagName('tbody')[0];
+      tbody.innerHTML = "";
+
+      var tr = document.createElement('tr');
+      var tdfps = document.createElement('td');
+      tdfps.innerText = fps;
+      tr.appendChild(tdfps);
+      tbody.appendChild(tr);
+
+     // document.getElementById('fps').innerText = "FPS : "+fps;
     }
 
     setCanvasDimensions = () => {
@@ -73,9 +144,16 @@ class ViewManager{
         const scaleRatio = Math.max(1, 800 / window.innerWidth);
         this.canvas.width = scaleRatio * window.innerWidth;
         this.canvas.height = scaleRatio * window.innerHeight;
-        console.log(Constants.MAP_SIZE/Constants.MAP_TILE)
-        document.getElementById("mini-map").style.height = Constants.MAP_SIZE/Constants.MAP_TILE+"px";
-        document.getElementById("mini-map").style.width = Constants.MAP_SIZE/Constants.MAP_TILE+"px";
+      //  console.log(Constants.MAP_SIZE/Constants.MAP_TILE)
+        
+        if(this.offscreenSet == false) {
+          document.getElementById("mini-map").style.height = (Constants.MAP_SIZE/Constants.MAP_TILE)*Constants.MINI_MAP_SIZE +"px";
+          document.getElementById("mini-map").style.width = (Constants.MAP_SIZE/Constants.MAP_TILE)*Constants.MINI_MAP_SIZE +"px";
+          this.canvasMiniMap.height = (Constants.MAP_SIZE/Constants.MAP_TILE)*Constants.MINI_MAP_SIZE;
+          this.canvasMiniMap.width = (Constants.MAP_SIZE/Constants.MAP_TILE)*Constants.MINI_MAP_SIZE;
+          
+          this.offscreenSet = true;
+        }
     }
 
     renderBackground() {
@@ -151,11 +229,11 @@ class ViewManager{
    }
 
     renderPlayer = (me, player) => {
-        const { x, y } = player;
+      /*  const { x, y } = player;
       //  console.log(player)
         const canvasX = this.canvas.width / 2 + x - me.x;
         const canvasY = this.canvas.height / 2 + y - me.y;
-      
+
         // Draw ship
         this.context.save();
         this.context.fillStyle=player.color;
@@ -164,7 +242,8 @@ class ViewManager{
         this.context.arc( 0, 0, Constants.MAP_TILE/2, 0, 2*Math.PI, true);
         this.context.fill();
         this.context.stroke();
-        this.context.restore();
+        this.context.restore();*/
+        Skin.render(this.skinIndex,me,player,this.canvas,this.context);
       }
 
       renderMainMenu = () => {
@@ -172,6 +251,7 @@ class ViewManager{
       //  this.renderBackground();
         this.animMenu.draw(this.context);
        // console.log("render")
+     
       }
 
       renderMiniMap = () => {
@@ -204,10 +284,10 @@ class ViewManager{
 
       render = () => {
         //var state = this.networkManager.getCurrentState();
-          const {me, others, map, leaderboard, miniMap} = this.currentGameState;
+          const {me, others, map, leaderboard, minimap} = this.currentGameState;
           if (!me || !map) {return;}
-          if(this.miniMap !== miniMap) {
-            this.miniMap = miniMap
+          if(this.miniMap !== minimap) {
+            this.miniMap = minimap
          //   this.renderMiniMap();
           }
           this.context.clearRect(0,0, this.canvas.width, this.canvas.height)
@@ -217,6 +297,7 @@ class ViewManager{
           this.renderPlayer(me, me);
           others.forEach(this.renderPlayer.bind(null, me));
           this.renderFPS();
+       
       }
       
       startRendering() {

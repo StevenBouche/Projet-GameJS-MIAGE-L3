@@ -9,6 +9,10 @@ module.exports = class MatriceMap {
         this.hashMap = new HashMapCase(this.numberTile*this.numberTile);
     }
 
+    getMiniMap = () => {
+        return this.hashMap;
+    }
+
     setCaseOfMap(x,y,value){
         //TODO a revoir
         var xy = this.getXYCenterfromCase(x,y);

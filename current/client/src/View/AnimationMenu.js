@@ -11,6 +11,7 @@ class AnimationMenu {
 
         for(var i = 0; i < this.nbAnim; i++){
             var r = 255*Math.random()|0,g = 255*Math.random()|0,b = 255*Math.random()|0;
+       
             var value = {
                 x: Math.floor(Math.random() * Math.floor(this.longueur)),
                 y: Math.floor(Math.random() * Math.floor(this.hauteur)),
@@ -19,25 +20,51 @@ class AnimationMenu {
                 speed: 2,
                 color: 'rgb(' + r + ',' + g + ',' + b + ')'
             }
-            console.log(value)
+           while(this.collisionBool(value) == true){
+            value = {
+                x: Math.floor(Math.random() * Math.floor(this.longueur)),
+                y: Math.floor(Math.random() * Math.floor(this.hauteur)),
+                r: Constants.MAP_TILE,
+                angle: Math.floor(Math.random() * Math.floor(360))*(Math.PI/180),
+                speed: 2,
+                color: 'rgb(' + r + ',' + g + ',' + b + ')'
+            }
+           }
+            value.vx = Math.sin(value.angle);
+            value.vy = Math.cos(value.angle);
             this.element.push(value);
         }
     }
 
     collision = (c) => {
         if (c.y+(c.r/2)  > this.hauteur || c.y-(c.r/2)  < 0) {
-            c.angle = Math.floor(Math.random() * Math.floor(360))*(Math.PI/180);
+         //   c.angle = Math.floor(Math.random() * Math.floor(360))*(Math.PI/180);
+            c.vy = -c.vy;
         }
         if (c.x+(c.r/2)  > this.longueur || c.x-(c.r/2)  < 0) {
-            c.angle = Math.floor(Math.random() * Math.floor(360))*(Math.PI/180);
+           // c.angle = Math.floor(Math.random() * Math.floor(360))*(Math.PI/180);
+            c.vx = -c.vx;
         }
+
+    }
+
+    collisionBool = (c) => {
+        if (c.y+(c.r/2)  > this.hauteur || c.y-(c.r/2)  < 0) {
+         return true;
+        }
+        if (c.x+(c.r/2)  > this.longueur || c.x-(c.r/2)  < 0) {
+           return true;
+        }
+
+        return false;
+
     }
 
     draw = (context) => {
         context.clearRect(0,0, this.longueur, this.hauteur)
         for(var i = 0; i < this.element.length; i++){
-            this.element[i].x += this.element[i].speed * Math.sin(this.element[i].angle);
-            this.element[i].y += this.element[i].speed * Math.cos(this.element[i].angle);
+            this.element[i].x += this.element[i].speed * this.element[i].vx;
+            this.element[i].y += this.element[i].speed * this.element[i].vy;
             this.collision(this.element[i]);
   
             context.save();
