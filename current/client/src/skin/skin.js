@@ -32,15 +32,15 @@ let pacman = (me,player,canvas,context)=> {
     context.translate(canvasX,canvasY);
     context.beginPath();
       context.arc(0, 0, Constants.MAP_TILE/2, 0.2 * Math.PI, 1.8 * Math.PI);
-      /*context.lineTo(0, 0);       Don't touch pls
-      context.lineTo(0, 0);*/
+        context.lineTo(0, 0);       
+      context.lineTo(0, 0);
     context.closePath();
     context.fillStyle=player.color;
     context.fill();
     context.strokeStyle="#000";
     context.stroke();
     context.beginPath();
-      context.arc(0,-(Constants.MAP_TILE/2),(Constants.MAP_TILE/2)*(1/8),0,2*Math.PI);
+      context.arc(0,-(Constants.MAP_TILE/2)/2,(Constants.MAP_TILE/2)*(1/8),0,2*Math.PI);
     context.closePath();
     context.fillStyle="#000";
     context.fill();
@@ -59,7 +59,9 @@ let ghost  = (me,player,canvas,context)=> {
   context.translate(canvasX, canvasY);
     //FORME
     context.beginPath();
+    context.strokeStyle="black";
       context.arc(0,0,Constants.MAP_TILE/2,Math.PI,2*Math.PI);
+      context.stroke();
       context.rect(-Constants.MAP_TILE/2,0,Constants.MAP_TILE,(Constants.MAP_TILE/2)*(3/4));
       context.moveTo(-Constants.MAP_TILE/2,(Constants.MAP_TILE/2)*(3/4));
       context.lineTo(-Constants.MAP_TILE/2,Constants.MAP_TILE/2);
@@ -75,6 +77,7 @@ let ghost  = (me,player,canvas,context)=> {
     context.closePath();
     context.fillStyle=player.color;
     context.fill();
+    context.stroke();
     //OEIL
     context.beginPath();
       context.arc(-(Constants.MAP_TILE/2)*(1/3.5),-(Constants.MAP_TILE/2)*(1/6),(Constants.MAP_TILE/2)*(1/7),0,2*Math.PI);
@@ -95,6 +98,8 @@ let ghost  = (me,player,canvas,context)=> {
 
 
 skin.render = (version,me,player,canvas,context) => {
+
+ 
   switch (version) {
     case 0:
       defaultSkin(me,player,canvas,context);

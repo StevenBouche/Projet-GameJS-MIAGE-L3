@@ -90,8 +90,9 @@ class ViewManager{
       this.skinIndex += v;
       if(this.skinIndex < 0 ) this.skinIndex = Skin.nbElement;
       else if(this.skinIndex > Skin.nbElement) this.skinIndex = 0;
-    //  console.log(this.skinIndex);
-      Skin.render(0,{x:0,y:0},{x:0,y:0,color:"yellow"},this.skinCanvas,this.ctxSkin)
+      console.log(this.skinIndex);
+      this.ctxSkin.clearRect(0,0, this.skinCanvas.width, this.skinCanvas.height)
+      Skin.render(this.skinIndex,{x:0,y:0},{x:0,y:0,color:"yellow"},this.skinCanvas,this.ctxSkin)
     }
 
     renderLeaderboard(leaderboard){
