@@ -27,6 +27,7 @@ class Game {
     this.shouldSendUpdate = false;
     this.mapAreaHaveChange = false;
     this.minimap = undefined; 
+    this.loopProgress = false;
     this.runServiceMapPlayer({});
   }
 
@@ -122,18 +123,24 @@ class Game {
   update = () => { 
 
     //DeltaTime
+
+    if(this.loopProgress == true ) return;
+
+    this.loopProgress = true;
+
     const now = Date.now();
     const dt = (now - this.lastUpdateTime) / 1000;
     this.lastUpdateTime = now;
 
     let tabSock = [...Object.keys(this.players)];
-
+    const leaderboard = this.getLeaderboard();
     tabSock.forEach(playerID => { // update des joueurs
       const player = this.players[playerID];
+      const socket = this.sockets[playerID];
       if(player != undefined){
         player.update(dt);
         var res = this.map.getCaseOfXY(player.x,player.y);
-
+    
         if(player.setCurrentCase(res)) { // Joueur est dans une nouvelle case
           var value = {type: TYPECASE.PATH, idPlayer: playerID, color: player.couleur};
           var elem = this.map.getElementMap(res.x,res.y);
@@ -147,18 +154,25 @@ class Game {
             }
           }
         }
+
+        
+        var element = this.createUpdate(player, leaderboard);
+        socket.emit(MSG_TYPES.GAME_UPDATE, element);
+
       }
     });
-
-    const leaderboard = this.getLeaderboard();
+    
+    this.loopProgress = false;
+  
     
 //    if(this.mapAreaHaveChange) this.minimap = this.map.getMiniMap();
-    Object.keys(this.sockets).forEach(playerID => {
+  /*  Object.keys(this.sockets).forEach(playerID => {
       const socket = this.sockets[playerID];
       const player = this.players[playerID];
       var element = this.createUpdate(player, leaderboard);
       socket.emit(MSG_TYPES.GAME_UPDATE, element);
-    });
+    });*/
+
   }
 
   getLeaderboard() {

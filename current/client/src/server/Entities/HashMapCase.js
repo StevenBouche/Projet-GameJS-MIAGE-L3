@@ -57,7 +57,6 @@ module.exports = class HashMapCase {
     _getIndexes(key) {
       const bucketIndex = this._getBucketIndex(key);
       const values = this.buckets[bucketIndex] || [];
-  
       for (let entryIndex = 0; entryIndex < values.length; entryIndex++) {
         const entry = values[entryIndex];
         if(equal(entry.key,key)) {

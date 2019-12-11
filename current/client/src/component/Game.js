@@ -51,7 +51,9 @@ export default class Game extends Component {
     }
 
     updateStateGame(state){
+
         this.state.viewManager.currentGameState = state;
+        this.state.viewManager.render();
     }
 
     render(){

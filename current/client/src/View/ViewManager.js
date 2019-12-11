@@ -303,7 +303,7 @@ class ViewManager{
       startRendering() {
        clearInterval(this.renderInterval);
        this.animMenu = undefined;
-       this.renderInterval = setInterval(this.render, 1000 / Constants.UI_REFRESH_HZ);
+      // this.renderInterval = setInterval(this.render, 1000 / Constants.UI_REFRESH_HZ);
       }
       
       stopRendering() {

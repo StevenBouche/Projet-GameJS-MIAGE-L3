@@ -3,10 +3,10 @@ module.exports = Object.freeze({
   PLAYER_MAX_HP: 100,
   PLAYER_SPEED: 350,
   SCORE_PER_SECOND: 1,
-  UI_REFRESH_HZ: 100,
-  MAP_SIZE: 1600,
+  UI_REFRESH_HZ: 60,
+  MAP_SIZE: 3200,
   MAP_TILE: 80,
-  MINI_MAP_SIZE: 10,
+  MINI_MAP_SIZE: 5,
   MSG_TYPES: {
     JOIN_GAME: 'join_game',
     GAME_UPDATE: 'update',

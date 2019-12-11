@@ -21,11 +21,33 @@ var getCaseOfXY = (x,y) => {
 var isIn = (element,x,y) => { return (element.content.x >= x - 15 && element.content.x <= x + 15 && element.content.y >= y - 8 && element.content.y <= y + 8); }
 
 var getMapPlayer = () => {
+
+  let sizeX = 10;
+  let sizeY = 6;
+
     Object.keys(players).forEach(playerID => {
       let cpt = 0;
       var player = players[playerID],
           elem = getCaseOfXY(player.x,player.y),
           elementtab = [];
+         
+            let topLeftX = elem.x - sizeX;
+            let topLeftY = elem.y - sizeY;
+      
+            if(topLeftX < 0) topLeftX = 0;
+            if(topLeftY < 0) topLeftY = 0;
+      
+        /*    for(let y = topLeftY; y < topLeftY + 2 * sizeY; y++){
+              for(let x = topLeftX; x < topLeftX + 2 * sizeX; x++){
+                let res = hashMap.get({x:x,y:y});
+               // console.log(res)
+                if(res != undefined){
+                  elementtab.push(res);
+                  cpt++;
+                }
+              }
+            }*/
+
       for(var i = 0; i < map.length; i++){
         var element = map[i];
         let res = hashMap.get(element.content);
@@ -47,7 +69,7 @@ var loopCalcul = (data) => {
   hashMap = Object.create(HashMapCase.prototype, Object.getOwnPropertyDescriptors(data.maptest));
 
   getMapPlayer();
-  setTimeout(getData,1000/30);
+  setTimeout(getData,1000/10);
 }
 
 parentPort.on('message', (e) => {

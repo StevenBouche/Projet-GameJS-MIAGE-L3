@@ -150,7 +150,7 @@ module.exports = class MatriceMap {
         var casePlayer = this.getCaseOfXY(element.x,element.y);
         return (casePlayer.x >= elem.x - 15 && casePlayer.x <= elem.x + 15 && casePlayer.y >= elem.y - 8 && casePlayer.y <= elem.y + 8);
     }
-
+/*
     getMapPlayer(me){    
       var elementtab = [];
       this.hashMap.keys.forEach((key) => {
@@ -159,7 +159,7 @@ module.exports = class MatriceMap {
         if(element != undefined && this.isIn(element,me.x,me.y)) elementtab.push(element);  
       })
       return elementtab;
-    }
+    }*/
    /*
     getMiniMap(){
         return  this.hashMap.buckets.filter(element => element.value.type == Constants.TYPECASE.AREA);
