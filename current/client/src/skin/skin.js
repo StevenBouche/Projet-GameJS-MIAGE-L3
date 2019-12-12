@@ -1,7 +1,6 @@
 import Constants from '../shared/constants'
 
 const skin = {};
-
 skin.nbElement = 2;
 
 let defaultSkin = (me,player,canvas,context) => {
@@ -15,7 +14,7 @@ let defaultSkin = (me,player,canvas,context) => {
     context.fillStyle=player.color;
     context.translate(canvasX, canvasY);
     context.beginPath();
-      context.arc( 0, 0, Constants.MAP_TILE/2, 0, 2*Math.PI, true);
+    context.arc( 0, 0, Constants.MAP_TILE/2, 0, 2*Math.PI, true);
     context.closePath();
     context.fill();
     context.stroke();
@@ -61,7 +60,7 @@ let ghost  = (me,player,canvas,context)=> {
     context.beginPath();
     context.strokeStyle="black";
       context.arc(0,0,Constants.MAP_TILE/2,Math.PI,2*Math.PI);
-      context.stroke();
+  //    context.stroke();
       context.rect(-Constants.MAP_TILE/2,0,Constants.MAP_TILE,(Constants.MAP_TILE/2)*(3/4));
       context.moveTo(-Constants.MAP_TILE/2,(Constants.MAP_TILE/2)*(3/4));
       context.lineTo(-Constants.MAP_TILE/2,Constants.MAP_TILE/2);
@@ -77,7 +76,7 @@ let ghost  = (me,player,canvas,context)=> {
     context.closePath();
     context.fillStyle=player.color;
     context.fill();
-    context.stroke();
+  //  context.stroke();
     //OEIL
     context.beginPath();
       context.arc(-(Constants.MAP_TILE/2)*(1/3.5),-(Constants.MAP_TILE/2)*(1/6),(Constants.MAP_TILE/2)*(1/7),0,2*Math.PI);

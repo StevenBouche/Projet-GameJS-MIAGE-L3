@@ -25,9 +25,10 @@ io.on('connection', socket => {
 // Setup the Game
 const gameManager = new GameManager();
 
-function joinGame(username) {
-  console.log("join game "+username)
-  gameManager.addPlayer(this, username);
+function joinGame(data) {
+  console.log("join game "+data.username)
+  console.log(data)
+  gameManager.addPlayer(this, data);
 }
 
 function handleInput(dir) {

@@ -17,64 +17,39 @@ const round = (num) => {
 class ViewManager{
 
     constructor(networkManager){
+
         this.currentGameState = {};
         this.networkManager = networkManager;
+
         this.animMenu = undefined;
         this.miniMap = undefined;
 
-        this.playMenu = document.getElementById('play-menu');
-        this.playButton = document.getElementById('play-button');
-        this.usernameInput = document.getElementById('username-input');
-        this.canvas = document.getElementById('game-canvas');
-        this.playButton = document.getElementById('play-button');   
-        this.canvasMiniMap = document.getElementById('mini-map-canvas');
         this.leaderboard = document.getElementById('leaderboard');
-
+        this.canvas = document.getElementById('game-canvas');
+        this.canvasMiniMap = document.getElementById('mini-map-canvas');
         this.context = this.canvas.getContext('2d');    
         this.offscreenSet = false;
         this.setCanvasDimensions();
         window.addEventListener('resize', debounce(40, this.setCanvasDimensions));
-        this.usernameInput.focus();
-        
-        this.lastState = {};
+   
+        //Thread render mini map
         this.worker = new Worker();
         this.offscreenCanvas = this.canvasMiniMap.transferControlToOffscreen();
         this.testWorker();
 
+        // Handle Skin
         document.getElementById('previousSkin').onclick = () => { this.handleSkin(-1); }
         document.getElementById('nextSkin').onclick = () => { this.handleSkin(1); }
         this.skinCanvas =  document.getElementById('skin');
         this.ctxSkin = this.skinCanvas.getContext("2d");
-
-        this.leaderboard = document.getElementById('leaderboard');
         this.skin = undefined;
         this.skinIndex = 0;
         this.handleSkin(this.skinIndex);
     }
 
     testWorker = () => {
-      
-      const {me, others, map, leaderboard, minimap} = this.currentGameState;
-      
-        /*worker.postMessage({
-          type: 'run',
-          canvas: this.offscreenCanvas,
-          minimap: minimap,
-        }, [this.offscreenCanvas]); */
-
-        /*this.worker.postMessage({
-          type: 'test',
-          minimap: minimap
-        });*/
-
-        // worker.onmessage event will be invoked by the worker
-        // whenever the rendering process is done.
         this.worker.onmessage = (event) => {
-         // console.log(event.data.type);  
-            if (event.data.type === 'resolved'){
-           //     console.log("RENDER WORKER RESOLVE");
-                this.worker.terminate();
-            } 
+            if (event.data.type === 'resolved') this.worker.terminate();
             else if(event.data.type === 'getData') {
               this.worker.postMessage({
                 type: 'dataSend',
@@ -135,8 +110,6 @@ class ViewManager{
       tdfps.innerText = fps;
       tr.appendChild(tdfps);
       tbody.appendChild(tr);
-
-     // document.getElementById('fps').innerText = "FPS : "+fps;
     }
 
     setCanvasDimensions = () => {
@@ -145,8 +118,7 @@ class ViewManager{
         const scaleRatio = Math.max(1, 800 / window.innerWidth);
         this.canvas.width = scaleRatio * window.innerWidth;
         this.canvas.height = scaleRatio * window.innerHeight;
-      //  console.log(Constants.MAP_SIZE/Constants.MAP_TILE)
-        
+
         if(this.offscreenSet == false) {
           document.getElementById("mini-map").style.height = (Constants.MAP_SIZE/Constants.MAP_TILE)*Constants.MINI_MAP_SIZE +"px";
           document.getElementById("mini-map").style.width = (Constants.MAP_SIZE/Constants.MAP_TILE)*Constants.MINI_MAP_SIZE +"px";
@@ -180,9 +152,7 @@ class ViewManager{
     }
 
    renderMap(map,me){
-      // Draw boundarie
-     /* if(map == undefined) return;
-      map = map.filter(element => element.type != Constants.TYPECASE.VIDE && this.isInCamera(me,element.x,element.y) );*/
+
       this.context.strokeStyle = 'black';
       this.context.lineWidth = 1;
       var topLeftMap = {x: this.canvas.width / 2 - me.x, y: this.canvas.height / 2 - me.y};
@@ -217,8 +187,7 @@ class ViewManager{
             this.context.arc( topLeftMap.x+caseMap.x, topLeftMap.y+caseMap.y, Constants.MAP_TILE/4, 0, 2*Math.PI, true);
             this.context.fill();
             this.context.stroke();
-          }     
-        
+          }      
       }
       });
       this.context.restore();
@@ -230,67 +199,19 @@ class ViewManager{
    }
 
     renderPlayer = (me, player) => {
-      /*  const { x, y } = player;
-      //  console.log(player)
-        const canvasX = this.canvas.width / 2 + x - me.x;
-        const canvasY = this.canvas.height / 2 + y - me.y;
-
-        // Draw ship
-        this.context.save();
-        this.context.fillStyle=player.color;
-        this.context.translate(canvasX, canvasY);
-        this.context.beginPath();
-        this.context.arc( 0, 0, Constants.MAP_TILE/2, 0, 2*Math.PI, true);
-        this.context.fill();
-        this.context.stroke();
-        this.context.restore();*/
-        Skin.render(this.skinIndex,me,player,this.canvas,this.context);
+        if(me.id === player.id) Skin.render(me.idskin,me,player,this.canvas,this.context);
+        else Skin.render(player.idskin,me,player,this.canvas,this.context);
       }
 
       renderMainMenu = () => {
         if (this.animMenu == undefined ) this.animMenu = new AnimationMenu(this.canvas.width,this.canvas.height);
-      //  this.renderBackground();
         this.animMenu.draw(this.context);
-       // console.log("render")
-     
-      }
-
-      renderMiniMap = () => {
-          document.getElementById('mini-map').classList.remove('hidden');
-          var ctx = this.canvasMiniMap.getContext('2d'); 
-          ctx.clearRect(0,0, Constants.MAP_SIZE/Constants.MAP_TILE, Constants.MAP_SIZE/Constants.MAP_TILE)
-         // console.log(this.miniMap)
-        /*  this.miniMap.forEach((element) => {
-            ctx.save();
-            ctx.beginPath();
-            ctx.fillStyle = element.value.color;
-            ctx.rect(element.key.x,  element.key.y, 1, 1);
-            ctx.fill();
-            ctx.restore();
-          });*/
-         // console.log(this.miniMap)
-       /*   for(var y = 0; y < this.miniMap.length; y++){
-            for(var x = 0; x < this.miniMap[y].length; x++){
-              if(!this.miniMap[y][x].value){
-                ctx.save();
-                ctx.beginPath();
-                ctx.fillStyle = 'black';
-                ctx.rect(x*10, y*10, 10, 10);
-                ctx.fill();
-                ctx.restore();
-              }
-            }
-          }*/
       }
 
       render = () => {
-        //var state = this.networkManager.getCurrentState();
           const {me, others, map, leaderboard, minimap} = this.currentGameState;
-          if (!me || !map) {return;}
-          if(this.miniMap !== minimap) {
-            this.miniMap = minimap
-         //   this.renderMiniMap();
-          }
+          if (!me || !map) return;
+          if(this.miniMap !== minimap) this.miniMap = minimap
           this.context.clearRect(0,0, this.canvas.width, this.canvas.height)
           this.renderBackground();
           this.renderLeaderboard(leaderboard);
@@ -298,18 +219,17 @@ class ViewManager{
           this.renderPlayer(me, me);
           others.forEach(this.renderPlayer.bind(null, me));
           this.renderFPS();
-       
       }
       
       startRendering() {
-       clearInterval(this.renderInterval);
-       this.animMenu = undefined;
-      // this.renderInterval = setInterval(this.render, 1000 / Constants.UI_REFRESH_HZ);
+        clearInterval(this.renderInterval);
+        this.animMenu = undefined;
+        //Commentaire car render syncro sur le tick server
+        // this.renderInterval = setInterval(this.render, 1000 / Constants.UI_REFRESH_HZ); 
       }
       
       stopRendering() {
         clearInterval(this.renderInterval);
-       // this.playMenu.classList.remove('hidden');
         this.renderInterval = setInterval(this.renderMainMenu, 1000 / Constants.UI_REFRESH_HZ);
       }
 

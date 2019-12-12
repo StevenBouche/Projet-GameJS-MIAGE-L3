@@ -3,7 +3,7 @@ const Constants = require('../../shared/constants');
 var equal = require('deep-equal');
 
 class Player extends ObjectClass {
-  constructor(id, username, x, y, xCase, yCase) {
+  constructor(id, username, x, y, xCase, yCase, idskin) {
     super(id, x, y, Constants.PLAYER_SPEED);
     this.username = username;
     this.score = 0;
@@ -15,6 +15,8 @@ class Player extends ObjectClass {
     this.couleur = 'rgb(' + r + ',' + g + ',' + b + ')';
     this.lastCaseArea = false;
     this.map = [];
+    this.idSkin = idskin;
+    console.log("idSkin :"+idskin)
   }
 
   setLastArea(bool){
@@ -93,7 +95,8 @@ class Player extends ObjectClass {
       ...(super.serializeForUpdate()),
       direction: this.direction,
       score: this.score,
-      color: this.couleur
+      color: this.couleur,
+      idskin: this.idSkin
     };
   }
 }

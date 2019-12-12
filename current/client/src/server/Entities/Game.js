@@ -68,14 +68,14 @@ class Game {
     } 
   }
 
-  addPlayer(socket, username) {
+  addPlayer(socket, username, idskin) {
     this.sockets[socket.id] = socket;
     var caseM = this.map.getRandomCaseMap(); // x & y  Generate a position to start this player at.
     while (!this.map.isCaseEmpty(caseM.x, caseM.y)){ //TODO CONDITION DE SORTIE
       caseM = this.map.getRandomCaseMap();
     }
     const xy = this.map.getXYCenterfromCase(caseM.x,caseM.y);
-    this.players[socket.id] = new Player(socket.id, username, xy.x, xy.y,caseM.x,caseM.y);
+    this.players[socket.id] = new Player(socket.id, username, xy.x, xy.y,caseM.x,caseM.y, idskin);
     this.map.addSpawPlayer(this.players[socket.id]);
   }
 
@@ -147,7 +147,6 @@ class Game {
           if(elem == undefined) this.actionEmpty(player,res.x,res.y,value);
           else {
             switch (elem.type) {
-             // case TYPECASE.VIDE: this.actionEmpty(player,res.x,res.y,value); break;
               case TYPECASE.PATH: this.actionPath(elem,player,res.x,res.y,value); break;
               case TYPECASE.AREA: this.actionArea(elem,player,res.x,res.y); break;
               default: break;

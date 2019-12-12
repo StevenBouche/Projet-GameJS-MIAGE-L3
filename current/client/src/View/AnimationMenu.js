@@ -45,7 +45,6 @@ class AnimationMenu {
            // c.angle = Math.floor(Math.random() * Math.floor(360))*(Math.PI/180);
             c.vx = -c.vx;
         }
-
     }
 
     collisionBool = (c) => {

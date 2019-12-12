@@ -37,7 +37,7 @@ var getMapPlayer = () => {
             if(topLeftX < 0) topLeftX = 0;
             if(topLeftY < 0) topLeftY = 0;
       
-        /*    for(let y = topLeftY; y < topLeftY + 2 * sizeY; y++){
+            for(let y = topLeftY; y < topLeftY + 2 * sizeY; y++){
               for(let x = topLeftX; x < topLeftX + 2 * sizeX; x++){
                 let res = hashMap.get({x:x,y:y});
                // console.log(res)
@@ -46,15 +46,15 @@ var getMapPlayer = () => {
                   cpt++;
                 }
               }
-            }*/
+            }
 
-      for(var i = 0; i < map.length; i++){
+    /*  for(var i = 0; i < map.length; i++){
         var element = map[i];
         let res = hashMap.get(element.content);
         if( isIn(element,elem.x,elem.y)) elementtab.push(res);  
 
         if(res.type === Constants.TYPECASE.AREA && res.idPlayer === playerID) cpt++;
-      }
+      }*/
       sendResult({map: elementtab, id: playerID, score: cpt});
     });
 }
@@ -69,7 +69,8 @@ var loopCalcul = (data) => {
   hashMap = Object.create(HashMapCase.prototype, Object.getOwnPropertyDescriptors(data.maptest));
 
   getMapPlayer();
-  setTimeout(getData,1000/10);
+  setTimeout(getData,1000/20);
+
 }
 
 parentPort.on('message', (e) => {

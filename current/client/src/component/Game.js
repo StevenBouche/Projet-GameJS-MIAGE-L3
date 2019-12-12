@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import NetworkManager from '../network/NetworkManager'
+import NetworkManager from '../manager/NetworkManager'
 import ViewManager from '../View/ViewManager'
 import KeyboardListener from '../manager/KeyboardListener'
-import StateGame from './../Model/state'
+import StateGame from './state'
 import GameState from '../stateView/GameState'
-import { Container, Row, Col } from 'reactstrap';
+
 
 export default class Game extends Component {
 
@@ -28,8 +28,7 @@ export default class Game extends Component {
     }
 
     startNetwork = (userInput) => {
-        console.log("startcallback")
-        this.state.networkManager.play(userInput);
+        this.state.networkManager.play({username: userInput, idskin: this.state.viewManager.skinIndex});
     }
 
     disconnectFromServer = () => {

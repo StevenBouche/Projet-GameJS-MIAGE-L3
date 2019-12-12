@@ -9,9 +9,10 @@ class GameManager{
        // setInterval(this.game.serviceCamPlayer,1000/Constants.UI_REFRESH_HZ);
     }
 
-    addPlayer(socket, username) {
+    addPlayer(socket, dataUser) {
+        const {username,idskin} = dataUser;
         console.log("Server add player : "+username);
-        this.game.addPlayer(socket, username);
+        this.game.addPlayer(socket, username, idskin);
     }
 
     removePlayer(socket) {
