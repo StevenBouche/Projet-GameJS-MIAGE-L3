@@ -1,7 +1,17 @@
 import Constants from '../shared/constants'
 
 const skin = {};
-skin.nbElement = 2;
+skin.nbElement = 3;
+
+let shrekDraw = (me,player,canvas,context,shrekS) => {
+
+   const { x, y } = player;
+  //  console.log(player)
+  const canvasX = canvas.width / 2 + x - me.x;
+  const canvasY = canvas.height / 2 + y - me.y;
+  context.drawImage(shrekS, canvasX,canvasY, Constants.MAP_TILE, Constants.MAP_TILE);
+
+}
 
 let defaultSkin = (me,player,canvas,context) => {
   const { x, y } = player;
@@ -23,6 +33,8 @@ let defaultSkin = (me,player,canvas,context) => {
 //PACMAN
 let pacman = (me,player,canvas,context)=> {
   const { x, y } = player;
+
+  console.log(player)
   //  console.log(player)
   const canvasX = canvas.width / 2 + x - me.x;
   const canvasY = canvas.height / 2 + y - me.y;
@@ -96,7 +108,7 @@ let ghost  = (me,player,canvas,context)=> {
 }
 
 
-skin.render = (version,me,player,canvas,context) => {
+skin.render = (version,me,player,canvas,context,shrek) => {
 
  
   switch (version) {
@@ -108,6 +120,9 @@ skin.render = (version,me,player,canvas,context) => {
       break;
     case 2:
       ghost(me,player,canvas,context);
+      break;
+    case 3:
+    //  shrekDraw(me,player,canvas,context,shrek);
       break;
     default:
       break;

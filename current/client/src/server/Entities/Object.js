@@ -1,4 +1,4 @@
-class Object {
+class Object { // Objet pour gerer la physique d'un objet qui bouge 
   constructor(id, x, y, speed) {
     this.id = id;
     this.x = x;

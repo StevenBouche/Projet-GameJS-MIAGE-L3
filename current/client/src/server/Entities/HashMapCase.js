@@ -17,8 +17,6 @@ module.exports = class HashMapCase {
   
     _getBucketIndex(key) {
       return this.hash(key);
-    //  const bucketIndex = hashValue % this.buckets.length;
-     // return bucketIndex;
     }
   
     set(key, value) {

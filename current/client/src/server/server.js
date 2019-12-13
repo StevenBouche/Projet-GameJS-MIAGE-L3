@@ -6,7 +6,7 @@ const GameManager = require('./Manager/GameManager');
 const app = express();
 
 // Listen on port
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 const server = app.listen(port);
 console.log(`Server listening on port ${port}`);
 
@@ -27,7 +27,7 @@ const gameManager = new GameManager();
 
 function joinGame(data) {
   console.log("join game "+data.username)
-  console.log(data)
+  console.log(data);
   gameManager.addPlayer(this, data);
 }
 

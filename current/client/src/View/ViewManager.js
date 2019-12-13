@@ -2,9 +2,11 @@ import { debounce } from 'throttle-debounce';
 import AnimationMenu from './AnimationMenu'
 import Worker from './map.worker.js';
 import Skin from '../skin/skin';
+import LoaderManager from '../manager/LoaderManager';
 
 var equal = require('deep-equal');
 const Constants = require('../shared/constants');
+
 const { MAP_SIZE } = Constants;
 
 var times = [];
@@ -20,6 +22,8 @@ class ViewManager{
 
         this.currentGameState = {};
         this.networkManager = networkManager;
+
+        this.loaderManager = new LoaderManager();
 
         this.animMenu = undefined;
         this.miniMap = undefined;
@@ -37,6 +41,8 @@ class ViewManager{
         this.offscreenCanvas = this.canvasMiniMap.transferControlToOffscreen();
         this.testWorker();
 
+        this.processingRender = false;
+        this.lastTimeData = 0;
         // Handle Skin
         document.getElementById('previousSkin').onclick = () => { this.handleSkin(-1); }
         document.getElementById('nextSkin').onclick = () => { this.handleSkin(1); }
@@ -67,7 +73,7 @@ class ViewManager{
       else if(this.skinIndex > Skin.nbElement) this.skinIndex = 0;
       console.log(this.skinIndex);
       this.ctxSkin.clearRect(0,0, this.skinCanvas.width, this.skinCanvas.height)
-      Skin.render(this.skinIndex,{x:0,y:0},{x:0,y:0,color:"yellow"},this.skinCanvas,this.ctxSkin)
+      Skin.render(this.skinIndex,{x:0,y:0},{x:0,y:0,color:"yellow"},this.skinCanvas,this.ctxSkin,this.loaderManager.loadAssets);
     }
 
     renderLeaderboard(leaderboard){
@@ -209,7 +215,14 @@ class ViewManager{
       }
 
       render = () => {
-          const {me, others, map, leaderboard, minimap} = this.currentGameState;
+          const {me, others, map, leaderboard, minimap, t} = this.currentGameState;
+
+          if(this.processingRender == true && this.lastTimeData > t) return;
+          else {
+            this.processingRender = true;
+            this.lastTimeData = t;
+          }
+          
           if (!me || !map) return;
           if(this.miniMap !== minimap) this.miniMap = minimap
           this.context.clearRect(0,0, this.canvas.width, this.canvas.height)
@@ -219,6 +232,8 @@ class ViewManager{
           this.renderPlayer(me, me);
           others.forEach(this.renderPlayer.bind(null, me));
           this.renderFPS();
+
+          this.processingRender = false;
       }
       
       startRendering() {

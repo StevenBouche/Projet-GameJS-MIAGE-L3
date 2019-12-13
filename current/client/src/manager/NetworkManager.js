@@ -1,7 +1,7 @@
 import io from "socket.io-client";
 const Constants = require("../shared/constants");
 
-var port = process.env.GAME_PORT || 3000;
+var port = process.env.GAME_PORT || 3001;
 var ip = process.env.GAME_HOSTNAME || "localhost"
 
 

@@ -55,13 +55,7 @@ module.exports = class MatriceMap {
         y = Math.floor(Math.random() * Math.floor(this.numberTile));
         return {x: x, y: y};
     }
-/*
-    getNbAreaPlayer(player){
-        this.hashMap.buckets.forEach((element) => {
-            if(element.value.type == Constants.TYPECASE.AREA) player[element.value.idPlayer].score += 1;
-        });
-    }
-*/
+
     delCaseOf(playerID){
         //TODO ASYNC ?
         let tab = Array.from(this.hashMap.keys);
@@ -90,38 +84,8 @@ module.exports = class MatriceMap {
                 ){
                     this.setCaseOfMap(x,y,element.path);
                 }
-/*
-                else if(element.type === Constants.TYPECASE.AREA){
-                    console.log("AREA")
-                    console.log(element.idPlayer,playerID)
-                    if(element.idPlayer == playerID) {
-                        if(element.path === undefined) {
-                            console.log("delete")
-                            
-                            this.hashMap.delete(key.content);
-                            console.log(key.content)
-                           
-                        }
-                        else this.setCaseOfMap(x,y,element.path);
-                    }
-                    else if(element.path != undefined && element.path.idPlayer === playerID)  element.path = undefined; this.setCaseOfMap(x,y,element);
-                } */
             }
         })
-
- 
-
-/*
-        var casePlayer = this.hashMap.buckets.filter(element => element.idPlayer === playerID);
-        var casePlayerPath = this.hashMap.buckets.filter(element => element.path !== undefined && element.path.idPlayer === playerID);
-        casePlayer.forEach((element) => {
-            if(element.path != undefined){
-                var val = {type: Constants.TYPECASE.PATH, idPlayer: element.path.idPlayer, color: element.path.color}
-                this.setCaseOfMap(x,y,val);
-                element.path = undefined;
-            } else element = {type: Constants.TYPECASE.VIDE, x: element.x, y: element.y};
-        });
-        casePlayerPath.forEach((element) => { element.path = undefined; })*/
     }
 
     searchNextPathAreaX(x,y,playerid,tab){
@@ -150,20 +114,6 @@ module.exports = class MatriceMap {
         var casePlayer = this.getCaseOfXY(element.x,element.y);
         return (casePlayer.x >= elem.x - 15 && casePlayer.x <= elem.x + 15 && casePlayer.y >= elem.y - 8 && casePlayer.y <= elem.y + 8);
     }
-/*
-    getMapPlayer(me){    
-      var elementtab = [];
-      this.hashMap.keys.forEach((key) => {
-        var {x, y} = key.content;
-        let element = this.getElementMap(x,y);
-        if(element != undefined && this.isIn(element,me.x,me.y)) elementtab.push(element);  
-      })
-      return elementtab;
-    }*/
-   /*
-    getMiniMap(){
-        return  this.hashMap.buckets.filter(element => element.value.type == Constants.TYPECASE.AREA);
-    }*/
 
     isCasePlayer(x,y,playerid){
         if(x >= this.numberTile) return true;
@@ -265,21 +215,7 @@ module.exports = class MatriceMap {
            elem = tabY.find((element) => {return element.x == tabX[i].x && element.y == tabX[i].y});
            if(elem != undefined) this.setCaseOfMap(tabX[i].x,tabX[i].y,value);
        }
-
-       for(i = 0; i < tabY.length; i++){
-
-        var value = {
-            color: player.couleur,
-            type: Constants.TYPECASE.AREA,
-            idPlayer: player.id
-        };
-
-            elem = tabX.find((element) => {return element.x == tabY[i].x && element.y == tabY[i].y});
-            if(elem != undefined) this.setCaseOfMap(tabY[i].x,tabY[i].y,value);
-            
-        }
-
-        
+  
     }
 
 }
