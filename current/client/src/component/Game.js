@@ -4,7 +4,7 @@ import ViewManager from '../View/ViewManager'
 import KeyboardListener from '../manager/KeyboardListener'
 import StateGame from './state'
 import GameState from '../stateView/GameState'
-
+import GamePrediction from './GamePrediction'
 
 export default class Game extends Component {
 
@@ -13,7 +13,9 @@ export default class Game extends Component {
         viewManager: undefined,
         keyboardListener: undefined,
         stateGame: undefined,
-        stateView: undefined
+        stateView: undefined,
+        gamePrediction: undefined,
+        interval: undefined
     }
 
     componentDidMount(){
@@ -25,6 +27,7 @@ export default class Game extends Component {
         this.setState({keyboardListener: new KeyboardListener()}, () => {
             this.state.keyboardListener.addObserver(this);
         });
+        this.setState({gamePrediction: new GamePrediction()});
     }
 
     assetHaveLoaded = () => {
@@ -33,10 +36,13 @@ export default class Game extends Component {
 
     startNetwork = (userInput) => {
         this.state.networkManager.play({username: userInput, idskin: this.state.viewManager.skinIndex});
+        this.setState({interval: setInterval(this.updateGame,1000/60)}); //remplacer par request animation frame
     }
 
     disconnectFromServer = () => {
         this.state.stateView.disconnect();
+        clearInterval(this.state.interval);
+        this.setState({interval: undefined});
     }
 
     connectFromServer = () => {
@@ -47,6 +53,8 @@ export default class Game extends Component {
         var {keyboardListener, stateView} = this.state;
         stateView.nextState();
         keyboardListener.resetInput();
+        clearInterval(this.state.interval);
+        this.setState({interval: undefined});
     }
      
     updateInput(data){
@@ -54,8 +62,17 @@ export default class Game extends Component {
     }
 
     updateStateGame(state){
+        this.state.gamePrediction.setCurrentPlayerFromServer(state.me,state.t);
         this.state.viewManager.currentGameState = state;
-        this.state.viewManager.render();
+    }
+
+    updateGame = () => {
+        this.state.gamePrediction.update();
+        let time = this.state.gamePrediction.lastUpdateTime;
+        let player = this.state.gamePrediction.player;
+        if(player != undefined){
+             this.state.viewManager.render(time,player.serializeForUpdate());
+        }
     }
 
     render(){

@@ -1,6 +1,6 @@
-const ObjectClass = require('./Object');
-const Constants = require('../../shared/constants');
-var equal = require('deep-equal');
+import ObjectClass from './Object';
+import Constants from '../shared/constants'
+import equal from 'deep-equal'
 
 class Player extends ObjectClass {
   constructor(id, username, x, y, xCase, yCase, idskin) {
@@ -16,7 +16,7 @@ class Player extends ObjectClass {
     this.lastCaseArea = false;
     this.map = [];
     this.idSkin = idskin;
-    console.log("idSkin :"+idskin)
+    //console.log("idSkin :"+idskin)
   }
 
   setLastArea(bool){
@@ -94,8 +94,6 @@ class Player extends ObjectClass {
     return {
       ...(super.serializeForUpdate()),
       direction: this.direction,
-      nextdirection: this.nextDirection,
-      nextcase: this.nextCase,
       score: this.score,
       color: this.couleur,
       idskin: this.idSkin
@@ -103,4 +101,4 @@ class Player extends ObjectClass {
   }
 }
 
-module.exports = Player;
+export default Player;

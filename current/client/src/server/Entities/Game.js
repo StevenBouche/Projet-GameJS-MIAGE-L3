@@ -93,7 +93,7 @@ class Game {
 
   handleInput(socket, dir) {
     //Update la direction du joueur 
-    if (this.players[socket.id]) this.tempInput[socket.id] = dir;// this.players[socket.id].updateState(dir);
+    if (this.players[socket.id]) this.players[socket.id].updateState(dir);// this.players[socket.id].updateState(dir);
   }
 
   //Joueur passe sur une case vide 
@@ -137,12 +137,12 @@ class Game {
     const leaderboard = this.getLeaderboard();
 
     //Update input player
-    [...Object.keys(this.tempInput)].forEach(key => {
+/*    [...Object.keys(this.tempInput)].forEach(key => {
       if(this.players[key]){
         this.players[key].updateState(this.tempInput[key]);
         delete this.tempInput[key];
       } 
-    })
+    })*/
 
     tabSock.forEach(playerID => { // update des joueurs
 

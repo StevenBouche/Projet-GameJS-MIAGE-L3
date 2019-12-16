@@ -224,23 +224,26 @@ class ViewManager{
         this.animMenu.draw(this.context);
       }
 
-      render = () => {
-          const {me, others, map, leaderboard, minimap, t} = this.currentGameState;
+      render = (timePrediction,playerPrediction) => {
+          const { me, others, map, leaderboard, minimap, t} = this.currentGameState;
 
           if(this.processingRender == true && this.lastTimeData > t) return;
           else {
             this.processingRender = true;
             this.lastTimeData = t;
           }
+
+          let meP = me;
+          if(timePrediction > t) meP = playerPrediction;
           
-          if (!me || !map) return;
+          if (!meP || !map) return;
           if(this.miniMap !== minimap) this.miniMap = minimap
           this.context.clearRect(0,0, this.canvas.width, this.canvas.height)
           this.renderBackground();
           this.renderLeaderboard(leaderboard);
-          this.renderMap(map,me);
-          this.renderPlayer(me, me);
-          others.forEach(this.renderPlayer.bind(null, me));
+          this.renderMap(map,meP);
+          this.renderPlayer(meP, meP);
+          others.forEach(this.renderPlayer.bind(null, meP));
           this.renderFPS();
 
           this.processingRender = false;
@@ -266,7 +269,6 @@ class ViewManager{
         let nameM = "";
         if(this.skinIndex == 3) nameM = "shrek8bit";
         else nameM = "musiquegame";
-        this.loaderManager.tabAsset[nameM].play();
         this.loaderManager.tabAsset[nameM].stop();
       }
 
