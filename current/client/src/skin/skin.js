@@ -3,29 +3,13 @@ import Constants from '../shared/constants'
 const skin = {};
 skin.nbElement = 3;
 
-let shrekDraw = (me,player,canvas,context,shrekS) => {
+let shrekDraw = (me,player,canvas,context,tabAsset) => {
 
    const { x, y } = player;
-  console.log(shrekS)
   const canvasX = canvas.width / 2 + x - me.x;
   const canvasY = canvas.height / 2 + y - me.y;
-  
+  let shrekS = tabAsset["shrek"];
   context.drawImage(shrekS, canvasX-(Constants.MAP_TILE/2),canvasY-(Constants.MAP_TILE/2),Constants.MAP_TILE,Constants.MAP_TILE);
-    
-
-/*
-  Promise.all([
-    // Cut out two sprites from the sprite sheet
-    shrekS.createImageBitmap(shrekS, 0, 0, 100, 100),
-
-  ]).then(function(sprites) {
-    // Draw each sprite onto the canvas
-    context.drawImage(sprites[0],canvasX, canvasY);
-
-  });
-*/
- // createImageBitmap(image, 0, 0, 32, 32)
- // context.drawImage(shrekS, canvasX,canvasY, Constants.MAP_TILE, Constants.MAP_TILE);
 
 }
 

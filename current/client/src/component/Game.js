@@ -19,12 +19,16 @@ export default class Game extends Component {
     componentDidMount(){
        // this.setState({stateGame: new StateGame()});
         this.setState({networkManager: new NetworkManager(this)});  
-        this.setState({viewManager: new ViewManager()}, () => {
+        this.setState({viewManager: new ViewManager(this.assetHaveLoaded)}, () => {
             this.setState({stateView: new GameState(this.state.viewManager,this.startNetwork)});
         }); 
         this.setState({keyboardListener: new KeyboardListener()}, () => {
             this.state.keyboardListener.addObserver(this);
         });
+    }
+
+    assetHaveLoaded = () => {
+        this.state.stateView.nextState();
     }
 
     startNetwork = (userInput) => {
@@ -50,7 +54,6 @@ export default class Game extends Component {
     }
 
     updateStateGame(state){
-
         this.state.viewManager.currentGameState = state;
         this.state.viewManager.render();
     }
@@ -87,6 +90,12 @@ export default class Game extends Component {
                     <h3>Connection serveur ...</h3>
                     <div className="loader"></div>
                 </div>
+                <div id="load-server" className="hidden">
+                    <h1>Jeux de tuiles</h1>
+                    <hr/>
+                    <h3>Load assets server ...</h3>
+                    <div className="loader"></div>
+                </div>
                 <div id="leaderboard" className="hidden">
                     <table id='leaderboardTable'>
                         <thead>
@@ -112,6 +121,7 @@ export default class Game extends Component {
                     <button id="reconnect-button">RECONNECT</button>
                     </div>
                 </div>
+                
                 <div id="fps" >
                 <table id='leaderboardTable'>
                         <thead>

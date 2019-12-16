@@ -35,11 +35,11 @@ class GameManager{
         //feature prise en compte du ping
         if(this.stateGame.length >= 100) this.stateGame.splice(0,1);
         //Revoir
-      //  if(this.loopProgress == true ) return;
-      //  this.loopProgress = true;
+        if(this.loopProgress == true ) return;
+        this.loopProgress = true;
         this.game.update();
         this.stateGame.push(this.game.clone());
-      //  this.loopProgress = false;
+        this.loopProgress = false;
     }
 
     restartGame = () => {

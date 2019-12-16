@@ -41,7 +41,7 @@ class initGame{
 class startGame{
 
      start = (gameState) => {
-       // gameState.audio.play();
+        
         gameState.viewManager.startRendering();
         setLeaderboardHidden(false,gameState.leaderboard);
         setPlaymenuHidden(true,gameState.playmenu);
@@ -80,16 +80,25 @@ class disconnectState {
 class connectState {
     
     start = (gameState) => {
-        // gameState.audio.play();
-         gameState.viewManager.stopRendering();
-         setLeaderboardHidden(true,gameState.leaderboard);
-         setPlaymenuHidden(true,gameState.playmenu);
-         setFPSHidden(true,gameState.fpsdiv);
-         setMiniMapHidden(true,gameState.miniMap);
          document.getElementById("connexion-server").classList.remove("hidden");
      }
  
      next = () => {
+         document.getElementById("connexion-server").classList.add("hidden");
+         return new loadState();
+     }
+
+
+}
+
+class loadState {
+    
+    start = (gameState) => {
+         document.getElementById("load-server").classList.remove("hidden");
+     }
+ 
+     next = () => {
+         document.getElementById("load-server").classList.add("hidden");
          return new initGame();
      }
 
@@ -115,6 +124,7 @@ export default class GameState {
 
         this.state.start(this)
         this.playbutton.onclick = () => { 
+            this.viewManager.username = this.usernameInput.value;
             callbackPlay(this.usernameInput.value);
             this.nextState(); 
         };

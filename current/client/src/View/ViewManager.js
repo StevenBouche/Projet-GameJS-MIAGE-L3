@@ -18,13 +18,11 @@ const round = (num) => {
 
 class ViewManager{
 
-    constructor(networkManager){
+    constructor(callbackAsset){
 
         this.currentGameState = {};
-        this.networkManager = networkManager;
-
-        this.loaderManager = new LoaderManager(this.finishLoad);
-
+      //  console.log(callbackAsset)
+        this.loaderManager = new LoaderManager(callbackAsset);
         this.animMenu = undefined;
         this.miniMap = undefined;
 
@@ -50,6 +48,7 @@ class ViewManager{
         this.ctxSkin = this.skinCanvas.getContext("2d");
         this.skin = undefined;
         this.skinIndex = 0;
+        this.username = "";
         this.handleSkin(this.skinIndex);
     }
 
@@ -71,13 +70,17 @@ class ViewManager{
       this.skinIndex += v;
       if(this.skinIndex < 0 ) this.skinIndex = Skin.nbElement;
       else if(this.skinIndex > Skin.nbElement) this.skinIndex = 0;
-      console.log(this.skinIndex);
+     // console.log(this.skinIndex);
       this.ctxSkin.clearRect(0,0, this.skinCanvas.width, this.skinCanvas.height)
-      Skin.render(this.skinIndex,{x:0,y:0},{x:0,y:0,color:"yellow"},this.skinCanvas,this.ctxSkin,this.loaderManager.bitMapShrek);
+      Skin.render(this.skinIndex,{x:0,y:0},{x:0,y:0,color:"yellow"},this.skinCanvas,this.ctxSkin,this.loaderManager.tabAsset);
+    }
+
+    setcallBackAsset = (callback) => {
+      this.callbackAsset = callback;
     }
 
     finishLoad = () =>{
-      console.log("FINISH LOAD");
+      
     }
 
     renderLeaderboard(leaderboard){
@@ -210,10 +213,10 @@ class ViewManager{
 
     renderPlayer = (me, player) => {
      // console.log(this.loaderManager.bitMapShrek);
-        if(me.id === player.id) Skin.render(me.idskin,me,player,this.canvas,this.context,this.loaderManager.bitMapShrek);
+        if(me.id === player.id) Skin.render(me.idskin,me,player,this.canvas,this.context,this.loaderManager.tabAsset);
       //  Skin.render(this.skinIndex,{x:0,y:0},{x:0,y:0,color:"yellow"},this.skinCanvas,this.ctxSkin,this.loaderManager.bitMapShrek);
         
-        else Skin.render(player.idskin,me,player,this.canvas,this.context,this.loaderManager.bitMapShrek);
+        else Skin.render(player.idskin,me,player,this.canvas,this.context,this.loaderManager.tabAsset);
       }
 
       renderMainMenu = () => {
@@ -246,6 +249,13 @@ class ViewManager{
       startRendering() {
         clearInterval(this.renderInterval);
         this.animMenu = undefined;
+        let nameM = "";
+        if(this.skinIndex == 3) nameM = "shrek8bit";
+        else nameM = "musiquegame";
+        this.loaderManager.tabAsset[nameM].play();
+        
+       // const { loaderManager } = gameState.viewManager;
+        
         //Commentaire car render syncro sur le tick server
         // this.renderInterval = setInterval(this.render, 1000 / Constants.UI_REFRESH_HZ); 
       }
@@ -253,6 +263,11 @@ class ViewManager{
       stopRendering() {
         clearInterval(this.renderInterval);
         this.renderInterval = setInterval(this.renderMainMenu, 1000 / Constants.UI_REFRESH_HZ);
+        let nameM = "";
+        if(this.skinIndex == 3) nameM = "shrek8bit";
+        else nameM = "musiquegame";
+        this.loaderManager.tabAsset[nameM].play();
+        this.loaderManager.tabAsset[nameM].stop();
       }
 
       initRender(){
