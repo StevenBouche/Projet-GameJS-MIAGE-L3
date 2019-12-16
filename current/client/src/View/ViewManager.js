@@ -23,7 +23,7 @@ class ViewManager{
         this.currentGameState = {};
         this.networkManager = networkManager;
 
-        this.loaderManager = new LoaderManager();
+        this.loaderManager = new LoaderManager(this.finishLoad);
 
         this.animMenu = undefined;
         this.miniMap = undefined;
@@ -73,7 +73,11 @@ class ViewManager{
       else if(this.skinIndex > Skin.nbElement) this.skinIndex = 0;
       console.log(this.skinIndex);
       this.ctxSkin.clearRect(0,0, this.skinCanvas.width, this.skinCanvas.height)
-      Skin.render(this.skinIndex,{x:0,y:0},{x:0,y:0,color:"yellow"},this.skinCanvas,this.ctxSkin,this.loaderManager.loadAssets);
+      Skin.render(this.skinIndex,{x:0,y:0},{x:0,y:0,color:"yellow"},this.skinCanvas,this.ctxSkin,this.loaderManager.bitMapShrek);
+    }
+
+    finishLoad = () =>{
+      console.log("FINISH LOAD");
     }
 
     renderLeaderboard(leaderboard){
@@ -205,8 +209,11 @@ class ViewManager{
    }
 
     renderPlayer = (me, player) => {
-        if(me.id === player.id) Skin.render(me.idskin,me,player,this.canvas,this.context);
-        else Skin.render(player.idskin,me,player,this.canvas,this.context);
+     // console.log(this.loaderManager.bitMapShrek);
+        if(me.id === player.id) Skin.render(me.idskin,me,player,this.canvas,this.context,this.loaderManager.bitMapShrek);
+      //  Skin.render(this.skinIndex,{x:0,y:0},{x:0,y:0,color:"yellow"},this.skinCanvas,this.ctxSkin,this.loaderManager.bitMapShrek);
+        
+        else Skin.render(player.idskin,me,player,this.canvas,this.context,this.loaderManager.bitMapShrek);
       }
 
       renderMainMenu = () => {

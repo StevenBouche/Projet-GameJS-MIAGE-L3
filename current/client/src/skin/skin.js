@@ -6,10 +6,26 @@ skin.nbElement = 3;
 let shrekDraw = (me,player,canvas,context,shrekS) => {
 
    const { x, y } = player;
-  //  console.log(player)
+  console.log(shrekS)
   const canvasX = canvas.width / 2 + x - me.x;
   const canvasY = canvas.height / 2 + y - me.y;
-  context.drawImage(shrekS, canvasX,canvasY, Constants.MAP_TILE, Constants.MAP_TILE);
+  
+  context.drawImage(shrekS, canvasX-(Constants.MAP_TILE/2),canvasY-(Constants.MAP_TILE/2),Constants.MAP_TILE,Constants.MAP_TILE);
+    
+
+/*
+  Promise.all([
+    // Cut out two sprites from the sprite sheet
+    shrekS.createImageBitmap(shrekS, 0, 0, 100, 100),
+
+  ]).then(function(sprites) {
+    // Draw each sprite onto the canvas
+    context.drawImage(sprites[0],canvasX, canvasY);
+
+  });
+*/
+ // createImageBitmap(image, 0, 0, 32, 32)
+ // context.drawImage(shrekS, canvasX,canvasY, Constants.MAP_TILE, Constants.MAP_TILE);
 
 }
 
@@ -122,7 +138,7 @@ skin.render = (version,me,player,canvas,context,shrek) => {
       ghost(me,player,canvas,context);
       break;
     case 3:
-    //  shrekDraw(me,player,canvas,context,shrek);
+      shrekDraw(me,player,canvas,context,shrek);
       break;
     default:
       break;

@@ -37,6 +37,7 @@ function loadAssetsUsingHowlerAndNoXhr(assetsToBeLoaded, callback) {
             callback(assetsLoaded);
         }
         console.log("Loaded asset " + loadedAssets);
+        
     };
 
     // get num of assets to load
@@ -51,10 +52,10 @@ function loadAssetsUsingHowlerAndNoXhr(assetsToBeLoaded, callback) {
         console.log("Loading " + url);
         if (isImage(url)) {
             assetsLoaded[name] = new Image();
-
-            assetsLoaded[name].onload = ifLoad;
             // will start async loading. 
             assetsLoaded[name].src = url;
+            assetsLoaded[name].onload = ifLoad;
+            
         } else {
             // We assume the asset is an audio file
             console.log("loading " + name + " buffer : " + assetsToBeLoaded[name].loop);
@@ -79,14 +80,33 @@ function loadAssetsUsingHowlerAndNoXhr(assetsToBeLoaded, callback) {
 
 class LoaderManager {
 
-    constructor(){
+    constructor(callback){
         this.loadedAssets = undefined;
-        loadAssets(this.settingAsset);
+        this.bitMapShrek = undefined;
+        this.callbackView = callback;
+
+
+        let asset = new Image();
+        asset.onload = () => {
+            let imgBit = createImageBitmap(asset, 0, 0, asset.width, asset.height);
+            imgBit.then((data) => {this.bitMapShrek = data})
+        };
+        asset.src = 'http://localhost:3000/sh.png';
+
+
+       // loadAssets(this.settingAsset);
     }
 
     settingAsset = (assetsReadyToBeUsed) => {
-        console.log(assetsReadyToBeUsed)
+    //    console.log("LOAD")
+      //  console.log(assetsReadyToBeUsed)
         this.loadAssets = assetsReadyToBeUsed;
+        console.log(this.loadAssets)
+        let imgBit = createImageBitmap(this.loadAssets, 0, 0, this.loadAssets.width, this.loadAssets.height);
+      imgBit.then((data) => {
+        this.bitMapShrek = data;
+      })
+        this.callbackView();
     }
 
 }
