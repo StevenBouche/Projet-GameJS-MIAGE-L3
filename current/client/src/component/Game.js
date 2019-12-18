@@ -59,6 +59,7 @@ export default class Game extends Component {
      
     updateInput(data){
         this.state.networkManager.updateInput(data);
+        this.state.gamePrediction.setDirectionUser(data.dir);
     }
 
     updateStateGame(state){
@@ -68,10 +69,11 @@ export default class Game extends Component {
 
     updateGame = () => {
         this.state.gamePrediction.update();
-        let time = this.state.gamePrediction.lastUpdateTime;
-        let player = this.state.gamePrediction.player;
+       // let time = this.state.gamePrediction.lastUpdateTime;
+        let player = this.state.gamePrediction.getLastPrediction();
+        //console.log(player)
         if(player != undefined){
-             this.state.viewManager.render(time,player.serializeForUpdate());
+            this.state.viewManager.render();
         }
     }
 

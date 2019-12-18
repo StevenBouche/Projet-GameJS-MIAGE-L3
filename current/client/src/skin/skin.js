@@ -34,7 +34,7 @@ let defaultSkin = (me,player,canvas,context) => {
 let pacman = (me,player,canvas,context)=> {
   const { x, y } = player;
 
-  console.log(player)
+  //console.log(player)
   //  console.log(player)
   const canvasX = canvas.width / 2 + x - me.x;
   const canvasY = canvas.height / 2 + y - me.y;

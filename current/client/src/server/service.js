@@ -16,7 +16,7 @@ let tabWorker = [];
 let processing = false;
 let nbThread = 0;
 let finishThread = 0;
-
+let lastTime = 0;
 var getCaseOfXY = (x,y) => {
   var xc = Math.floor(x/Constants.MAP_TILE);
   var yc = Math.floor(y/Constants.MAP_TILE);
@@ -41,8 +41,8 @@ var getMapPlayer = () => {
       
             if(topLeftX < 0) topLeftX = 0;
             if(topLeftY < 0) topLeftY = 0;
-      /*
-            for(let y = topLeftY; y < topLeftY + 2 * sizeY; y++){
+      
+          /*  for(let y = topLeftY; y < topLeftY + 2 * sizeY; y++){
               for(let x = topLeftX; x < topLeftX + 2 * sizeX; x++){
                 let res = hashMap.get({x:x,y:y});
                // console.log(res)
@@ -65,7 +65,17 @@ var getMapPlayer = () => {
 }
 
 var sendResult = (result) => { parentPort.postMessage(result); }
-var getData = () => { port.postMessage("Worker get data"); }
+var getData = () => { 
+//console.log("getdata")
+  let now = Date.now();
+  
+ /* if(1000/30<now-lastTime){
+    console.log("getdata")*/
+    port.postMessage("Worker get data"); 
+ /*   lastTime = now;
+  } else getData();*/
+  
+}
 
 var loopCalcul = (data) => {
   players = data.players;
@@ -74,7 +84,8 @@ var loopCalcul = (data) => {
   hashMap = Object.create(HashMapCase.prototype, Object.getOwnPropertyDescriptors(data.maptest));
 
   getMapPlayer();
-  setTimeout(getData,1000/20);
+  //getData();
+  setTimeout(getData,1000/10);
 
 };
 

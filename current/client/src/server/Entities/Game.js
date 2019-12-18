@@ -18,8 +18,10 @@ class Game {
 
     this.lastUpdateTime = Date.now();
     //this.shouldSendUpdate = false;
-
+    this.t = 0;
+    this.dt = 0;
     this.runServiceMapPlayer({});
+    
   }
 
   runServiceMapPlayer = (workerData) => {
@@ -91,7 +93,7 @@ class Game {
     this.removePlayer(playerID);
   }
 
-  handleInput(socket, dir) {
+  handleInput = (socket, dir) => {
     //Update la direction du joueur 
     if (this.players[socket.id]) this.players[socket.id].updateState(dir);// this.players[socket.id].updateState(dir);
   }
@@ -124,17 +126,18 @@ class Game {
     else this.map.addPathOnArea(x,y,player);
   }
 
-  update = () => { 
+  update = (dt,time) => { 
 
-    //DeltaTime pour prendre en compte les deplacement en fonction du temps ecouler entre 2 frames
-    const now = Date.now();
+    //DeltaToime pour prendre en compte les deplacement en fonction du temps ecouler entre 2 frames
+   /* const now = Date.now();
     const dt = (now - this.lastUpdateTime) / 1000;
-    this.lastUpdateTime = now;
-
+    this.lastUpdateTime = now;*/
+    this.t = time;
+    this.dt = dt;
     // Copie du tableau des joueurs 
     let tabSock = [...Object.keys(this.players)];
     //recupere les classement
-    const leaderboard = this.getLeaderboard();
+    
 
     //Update input player
 /*    [...Object.keys(this.tempInput)].forEach(key => {
@@ -153,7 +156,7 @@ class Game {
       if(player != undefined) {
 
       //update le joueur 
-      player.update(dt);
+      player.update(this.dt);
       //Get x,y case en fonction des px
       var res = this.map.getCaseOfXY(player.x,player.y);
     
@@ -173,12 +176,23 @@ class Game {
         }
       }
 
+      
+      }
+    });
+
+  }
+
+  sendDatatoPlayer = () => {
+    const leaderboard = this.getLeaderboard();
+    Object.keys(this.players).forEach(playerID => { 
+      const player = this.players[playerID];
+      const socket = this.sockets[playerID];
       //Genere les donnees a envoyer au joueur
       var element = this.createUpdate(player, leaderboard);
       // Et envoi les donnees
       socket.emit(MSG_TYPES.GAME_UPDATE, element);
-      }
     });
+    
   }
 
   getLeaderboard() {

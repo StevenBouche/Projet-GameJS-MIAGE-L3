@@ -31,7 +31,12 @@ class KeyBoardListener {
     notifyInput(state){
         if(!equal(this.state,state)){
             this.state = state;
-            this.observers.forEach(observer => observer.updateInput(state));
+            console.log(state)
+            let data = {
+                t: Date.now(),
+                dir: state
+            }
+            this.observers.forEach(observer => observer.updateInput(data));
         }
     }   
 

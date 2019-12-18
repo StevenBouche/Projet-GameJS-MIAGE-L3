@@ -16,6 +16,8 @@ class Player extends ObjectClass {
     this.lastCaseArea = false;
     this.map = [];
     this.idSkin = idskin;
+    this.lastDt=0;
+    this.color = "";
     //console.log("idSkin :"+idskin)
   }
 
@@ -23,7 +25,7 @@ class Player extends ObjectClass {
     this.lastCaseArea = bool;
   }
   update(dt) {
-    
+    this.lastDt = dt;
     var dir = this.direction;
 
     if(this.nextCase.x == undefined && this.nextCase.y == undefined) this.updateNextState();
@@ -93,9 +95,10 @@ class Player extends ObjectClass {
   serializeForUpdate() {
     return {
       ...(super.serializeForUpdate()),
+      dt: this.lastDt,
       direction: this.direction,
       score: this.score,
-      color: this.couleur,
+      color: this.color,
       idskin: this.idSkin
     };
   }
