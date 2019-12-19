@@ -66,7 +66,7 @@ class Game {
     } 
   }
 
-  addPlayer(socket, username, idskin) {
+  addPlayer = (socket, username, idskin) => {
     //Save socket
     this.sockets[socket.id] = socket;
     var caseM = this.map.getRandomCaseMap(); // x & y  Generate a position to start this player at.
@@ -78,12 +78,12 @@ class Game {
     this.map.addSpawPlayer(this.players[socket.id]);
   }
 
-  removePlayer(id) {
+  removePlayer= (id) => {
     delete this.sockets[id];
     delete this.players[id];
   }
 
-  playerDie(playerID){
+  playerDie = (playerID) => {
     const socket = this.sockets[playerID];
     //Remove toutes les cases du player
     this.map.delCaseOf(playerID);
@@ -195,7 +195,7 @@ class Game {
     
   }
 
-  getLeaderboard() {
+  getLeaderboard = () => {
     //retourne un tableau de 5 de username et score des 5 meilleurs players
     return Object.values(this.players)
       .sort((p1, p2) => p2.score - p1.score)
@@ -203,7 +203,7 @@ class Game {
       .map(p => ({ username: p.username, score: Math.round(p.score) }));
   }
 
-  createUpdate(player, leaderboard) { 
+  createUpdate = (player, leaderboard) => { 
 
     // TODO , retourne un tableau des autres joueur qui sont visible par le joueur 
     const nearbyPlayers = Object.values(this.players).filter(
@@ -222,7 +222,8 @@ class Game {
   }
 
   clone = () => {
-    return Object.assign({}, this);
+    return { ...this };
+    //return Object.assign({}, this);
   }
 
 }

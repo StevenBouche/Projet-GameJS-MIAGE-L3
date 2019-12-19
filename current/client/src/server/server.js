@@ -19,6 +19,7 @@ io.on('connection', socket => {
   socket.on(MSG_TYPES.JOIN_GAME, joinGame);
   socket.on(MSG_TYPES.INPUT, handleInput);
   socket.on(MSG_TYPES.PING, pong);
+  socket.on('ntpsync', handleNTP);
   socket.on('disconnect', onDisconnect);
 });
 
@@ -33,6 +34,17 @@ function joinGame(data) {
 
 function handleInput(dir) {
   gameManager.handleInput(this, dir);
+}
+
+function handleNTP(data){
+ 
+    console.log(data)
+    data.rt = Date.now();
+    data.ot = data.tt;
+    data.tt = Date.now();
+    console.log(data);
+    this.emit('ntpsyncclient',data);
+  
 }
 
 function pong(){

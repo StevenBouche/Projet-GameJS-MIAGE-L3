@@ -30,7 +30,7 @@ class GameManager{
     handleInput = (socket, dir) => {
         let direction = dir.dir;
         this.stateGame.addInput(dir,socket.id);
-        this.game.handleInput(socket, direction);
+      //  this.game.handleInput(socket, direction);
     }
     
     startGame = () => {
@@ -43,33 +43,26 @@ class GameManager{
         let now = Date.now();
         let dt = (now - this.lastUpdateTime) / 1000;
         this.lastUpdateTime = now;
-      //  console.log(dt)
-        //feature prise en compte du ping
-      
-        //Revoir
+     
         if(this.loopProgress == true ) return;
         this.loopProgress = true;
+
         let b = this.stateGame.haveInputUnprocceded();
   
         if(b == true){
-           // console.log("input")
             this.stateGame.update();
             let last = this.stateGame.getLastUpdateGame();
-         //   console.log(last)
-            if(last != undefined) {
-                //console.log(last.t,this.game.t)
-                Object.assign(this.game, last);
+            if(last != undefined)  {
+            
+              this.game = last;
+               // Object.assign(this.game, last);
+         
             }
         } else if (b == false) {
-           // console.log("pas d'input")
             this.game.t = now;
             this.game.update(dt,now);
-           // console.log(this.game.t)
             this.stateGame.addState(this.game.clone());
         }
-       
-        
-      //  console.log(last.t)
 
         this.game.sendDatatoPlayer();
         this.loopProgress = false;

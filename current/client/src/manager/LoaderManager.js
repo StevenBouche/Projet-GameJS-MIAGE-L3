@@ -98,19 +98,6 @@ class LoaderManager {
         this.tabAsset = [];
         this.bitMapShrek = undefined;
         this.callbackView = callback;
-
-
-      /*  let asset = new Image();
-        asset.onload = () => {
-            let imgBit = createImageBitmap(asset, 0, 0, asset.width, asset.height);
-            imgBit.then((data) => {
-                this.bitMapShrek = data; 
-                this.callbackView();
-            })
-        };
-        asset.src = 'http://localhost:3000/sh.png';*/
-
-
         loadAssets(this.settingAsset,this.tabAsset);
 
     }
@@ -120,10 +107,6 @@ class LoaderManager {
     }
 
     settingAsset = (assetsReadyToBeUsed) => {
-        //console.log(assetsReadyToBeUsed)
-        //this.loadAssets = assetsReadyToBeUsed;
-        console.log(this.tabAsset)
-        console.log("Finish load data")
         this.callbackView();
     }
 
