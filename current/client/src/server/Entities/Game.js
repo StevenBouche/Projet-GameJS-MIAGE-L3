@@ -136,17 +136,7 @@ class Game {
     this.dt = dt;
     // Copie du tableau des joueurs 
     let tabSock = [...Object.keys(this.players)];
-    //recupere les classement
     
-
-    //Update input player
-/*    [...Object.keys(this.tempInput)].forEach(key => {
-      if(this.players[key]){
-        this.players[key].updateState(this.tempInput[key]);
-        delete this.tempInput[key];
-      } 
-    })*/
-
     tabSock.forEach(playerID => { // update des joueurs
 
       //Get player et la socket associer a l'ID
@@ -167,7 +157,7 @@ class Game {
         var elem = this.map.getElementMap(res.x,res.y);
         //Si pas referencer alors case vide
         if(elem == undefined) this.actionEmpty(player,res.x,res.y,value);
-        else { //Sinon en fonction du type de case en constante realise l'action associer 
+        else {
           switch (elem.type) {
             case TYPECASE.PATH: this.actionPath(elem,player,res.x,res.y,value); break;
             case TYPECASE.AREA: this.actionArea(elem,player,res.x,res.y); break;
@@ -175,8 +165,6 @@ class Game {
           }
         }
       }
-
-      
       }
     });
 
@@ -189,7 +177,7 @@ class Game {
       const socket = this.sockets[playerID];
       //Genere les donnees a envoyer au joueur
       var element = this.createUpdate(player, leaderboard);
-      // Et envoi les donnees
+      // Et envoi les 
       socket.emit(MSG_TYPES.GAME_UPDATE, element);
     });
     

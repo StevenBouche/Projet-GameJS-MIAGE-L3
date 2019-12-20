@@ -224,7 +224,7 @@ class ViewManager{
         this.animMenu.draw(this.context);
       }
 
-      render = (/*playerPrediction*/) => {
+      render = (playerPrediction) => {
           const { me, others, map, leaderboard, minimap, t} = this.currentGameState;
 
           if(this.processingRender == true && this.lastTimeData > t) return;
@@ -233,7 +233,7 @@ class ViewManager{
             this.lastTimeData = t;
           } 
           
-          let meP = me;// playerPrediction;
+          let meP = playerPrediction;// playerPrediction;
          
           
           if (!meP || !map) return;

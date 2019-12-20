@@ -45,6 +45,7 @@ class NetworkManager {
   }
 
   currentServerTime() {
+    console.log(this.ecart)
       return Date.now() + this.ecart;
   //  return this.firstServerTimestamp + (Date.now() - this.gameStart) +10  ;
   }

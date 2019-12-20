@@ -1,7 +1,7 @@
 import { INPUT } from '../shared/constants'
 import equal from 'deep-equal'
 
-var KeyboardHelper = { left: 37, up: 38, right: 39, down: 40, space: 32};
+var KeyboardHelper = { left: 37, up: 38, right: 39, down: 40, space: 32,  z:90, s:83, q:81, d:68};
 
 class KeyBoardListener {
 
@@ -42,19 +42,19 @@ class KeyBoardListener {
 
     keyDownHandler = (event) => {
 
-        if(event.keyCode === KeyboardHelper.right ) {
+        if(event.keyCode === KeyboardHelper.right || event.keyCode === KeyboardHelper.d) {
            this.notifyInput(INPUT.E);
         }
-        else if(event.keyCode === KeyboardHelper.left ) {
+        else if(event.keyCode === KeyboardHelper.left || event.keyCode === KeyboardHelper.q) {
             this.notifyInput(INPUT.O);
         }
-        else if(event.keyCode === KeyboardHelper.down ) {
+        else if(event.keyCode === KeyboardHelper.down || event.keyCode === KeyboardHelper.s) {
             this.notifyInput(INPUT.S);
         }
-        else if(event.keyCode === KeyboardHelper.up) {
+        else if(event.keyCode === KeyboardHelper.up || event.keyCode === KeyboardHelper.z) {
             this.notifyInput(INPUT.N);
         }
-        else if(event.keyCode === KeyboardHelper.space) {
+        else if(event.keyCode === KeyboardHelper.space ) {
             this.notifyInput(INPUT.STOP);
         }
     }

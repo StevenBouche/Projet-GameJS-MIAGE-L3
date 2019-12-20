@@ -61,6 +61,10 @@ class GameManager{
         } else if (b == false) {
             this.game.t = now;
             this.game.update(dt,now);
+            
+        //    this.stateGame.bufferState
+        //    this.stateGame.bufferState = this.stateGame.insertKey(this.game.t,this.game.clone(),this.stateGame.bufferState,Object.keys(this.stateGame.bufferState).length);
+        //      console.log(this.stateGame.bufferState)
             this.stateGame.addState(this.game.clone());
         }
 

@@ -73,7 +73,7 @@ export default class Game extends Component {
         let player = this.state.gamePrediction.getLastPrediction();
         //console.log(player)
         if(player != undefined){
-            this.state.viewManager.render();
+            this.state.viewManager.render(player);
         }
     }
 
