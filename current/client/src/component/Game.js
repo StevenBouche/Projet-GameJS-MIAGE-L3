@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import NetworkManager from '../manager/NetworkManager'
 import ViewManager from '../View/ViewManager'
 import KeyboardListener from '../manager/KeyboardListener'
-import StateGame from './state'
 import GameState from '../stateView/GameState'
 import GamePrediction from './GamePrediction'
+import Constants from '../shared/constants'
 
 export default class Game extends Component {
 
@@ -36,7 +36,7 @@ export default class Game extends Component {
 
     startNetwork = (userInput) => {
         this.state.networkManager.play({username: userInput, idskin: this.state.viewManager.skinIndex});
-        this.setState({interval: setInterval(this.updateGame,1000/60)}); //remplacer par request animation frame
+        this.setState({interval: setInterval(this.updateGame,1000/Constants.UI_REFRESH_HZ)}); //remplacer par request animation frame
     }
 
     disconnectFromServer = () => {
@@ -64,7 +64,7 @@ export default class Game extends Component {
 
     updateStateGame(state){
         this.state.gamePrediction.setCurrentPlayerFromServer(state.me,state.t);
-        this.state.viewManager.currentGameState = state;
+        this.state.viewManager.setCurrentGameState(state);
     }
 
     updateGame = () => {
@@ -72,7 +72,7 @@ export default class Game extends Component {
        // let time = this.state.gamePrediction.lastUpdateTime;
         let player = this.state.gamePrediction.getLastPrediction();
         //console.log(player)
-        if(player != undefined){
+        if(player !== undefined){
             this.state.viewManager.render(player);
         }
     }

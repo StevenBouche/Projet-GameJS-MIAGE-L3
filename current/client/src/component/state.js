@@ -1,6 +1,6 @@
 
 const RENDER_DELAY = 100;
-const SIZE_BUFFER = 200;
+//const SIZE_BUFFER = 200;
 
 export default class State {
 

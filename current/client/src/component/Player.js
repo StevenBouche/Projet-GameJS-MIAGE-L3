@@ -28,7 +28,7 @@ class Player extends ObjectClass {
     this.lastDt = dt;
     var dir = this.direction;
 
-    if(this.nextCase.x == undefined && this.nextCase.y == undefined) this.updateNextState();
+    if(this.nextCase.x === undefined && this.nextCase.y === undefined) this.updateNextState();
 
     if(equal(dir,Constants.INPUT.N)) {
       if(this.y > this.nextCase.y) this.updatePosition(dt);

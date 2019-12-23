@@ -1,9 +1,9 @@
-import {Howl, Howler} from 'howler';
+import {Howl} from 'howler';
 
 var assetsToLoadURLs = {
-    shrek: { url: 'http://localhost:3000/sh.png' },
-    musiquegame: { url: 'http://localhost:3000/musiqueGame.mp3', buffer: false, loop: false, volume: 0.5 },
-    shrek8bit: { url: 'http://localhost:3000/shrek8bit.mp3', buffer: false, loop: false, volume: 0.5 }
+    shrek: { url: 'http://137.74.199.200:3000/sh.png' },
+    musiquegame: { url: 'http://137.74.199.200:3000/musiqueGame.mp3', buffer: false, loop: false, volume: 0.5 },
+    shrek8bit: { url: 'http://137.74.199.200:3000/shrek8bit.mp3', buffer: false, loop: false, volume: 0.5 }
 };
 
 function loadAssets(callback,tabAsset) {
@@ -15,10 +15,10 @@ function loadAssets(callback,tabAsset) {
 function isImage(url) {
     return (url.match(/\.(jpeg|jpg|gif|png)$/) != null);
 }
-
+/*
 function isAudio(url) {
     return (url.match(/\.(mp3|ogg|wav)$/) != null);
-}
+}*/
 
 function imageToBitMap(name,url,tabAsset,callback){
     let asset = new Image();

@@ -3,8 +3,6 @@ import AnimationMenu from './AnimationMenu'
 import Worker from './map.worker.js';
 import Skin from '../skin/skin';
 import LoaderManager from '../manager/LoaderManager';
-
-var equal = require('deep-equal');
 const Constants = require('../shared/constants');
 
 const { MAP_SIZE } = Constants;
@@ -64,6 +62,10 @@ class ViewManager{
         };
 
         this.worker.postMessage({type: 'setCanvas', canvas: this.offscreenCanvas}, [this.offscreenCanvas]);
+    }
+
+    setCurrentGameState = (state) => {
+      this.currentGameState = state;
     }
 
     handleSkin = (v) => {
@@ -132,12 +134,14 @@ class ViewManager{
         this.canvas.width = scaleRatio * window.innerWidth;
         this.canvas.height = scaleRatio * window.innerHeight;
 
-        if(this.offscreenSet == false) {
+        if(this.offscreenSet === false) {
           document.getElementById("mini-map").style.height = (Constants.MAP_SIZE/Constants.MAP_TILE)*Constants.MINI_MAP_SIZE +"px";
           document.getElementById("mini-map").style.width = (Constants.MAP_SIZE/Constants.MAP_TILE)*Constants.MINI_MAP_SIZE +"px";
           this.canvasMiniMap.height = (Constants.MAP_SIZE/Constants.MAP_TILE)*Constants.MINI_MAP_SIZE;
           this.canvasMiniMap.width = (Constants.MAP_SIZE/Constants.MAP_TILE)*Constants.MINI_MAP_SIZE;
-          
+          this.animMenu = undefined;
+       //   this.animMenu = new AnimationMenu(this.canvas.width,this.canvas.height);
+        //  if (this.animMenu !== undefined ) 
           this.offscreenSet = true;
         }
     }
@@ -220,14 +224,14 @@ class ViewManager{
       }
 
       renderMainMenu = () => {
-        if (this.animMenu == undefined ) this.animMenu = new AnimationMenu(this.canvas.width,this.canvas.height);
+        if (this.animMenu === undefined ) this.animMenu = new AnimationMenu(this.canvas.width,this.canvas.height);
         this.animMenu.draw(this.context);
       }
 
       render = (playerPrediction) => {
-          const { me, others, map, leaderboard, minimap, t} = this.currentGameState;
+          const { /*me,*/ others, map, leaderboard, minimap, t} = this.currentGameState;
 
-          if(this.processingRender == true && this.lastTimeData > t) return;
+          if(this.processingRender === true && this.lastTimeData > t) return;
           else {
             this.processingRender = true;
             this.lastTimeData = t;
@@ -253,7 +257,7 @@ class ViewManager{
         clearInterval(this.renderInterval);
         this.animMenu = undefined;
         let nameM = "";
-        if(this.skinIndex == 3) nameM = "shrek8bit";
+        if(this.skinIndex === 3) nameM = "shrek8bit";
         else nameM = "musiquegame";
         this.loaderManager.tabAsset[nameM].play();
         
@@ -267,7 +271,7 @@ class ViewManager{
         clearInterval(this.renderInterval);
         this.renderInterval = setInterval(this.renderMainMenu, 1000 / Constants.UI_REFRESH_HZ);
         let nameM = "";
-        if(this.skinIndex == 3) nameM = "shrek8bit";
+        if(this.skinIndex === 3) nameM = "shrek8bit";
         else nameM = "musiquegame";
         this.loaderManager.tabAsset[nameM].stop();
       }

@@ -20,7 +20,7 @@ class GamePrediction {
         const dt = (now - this.lastUpdateTime) / 1000;
         this.lastUpdateTime = now;
 
-        if(this.player != undefined){
+        if(this.player !== undefined){
             this.player.update(dt);
             if(this.predictionPlayer.length > 100) this.predictionPlayer.shift();
             this.predictionPlayer.push(this.player.serializeForUpdate());
@@ -33,12 +33,12 @@ class GamePrediction {
 
     setCurrentPlayerFromServer = (me,t) => {
        // console.log(me)
-        if(this.player != undefined){
+        if(this.player !== undefined){
             //this.lastUpdateTime = t;
-            if (this.predictionPlayer[0] == undefined) return ;
+            if (this.predictionPlayer[0] === undefined) return ;
 
             
-            if(this.predictionPlayer[0].x != me.x || this.predictionPlayer[0].y != me.y){
+            if(this.predictionPlayer[0].x !== me.x || this.predictionPlayer[0].y !== me.y){
                // console.log("RECALCULE")
                 this.player.x = me.x;
                 this.player.y = me.y;
@@ -61,7 +61,7 @@ class GamePrediction {
     }
 
     setDirectionUser = (dir) => {
-        if(this.player != undefined) this.player.updateState(dir);
+        if(this.player !== undefined) this.player.updateState(dir);
     }
 
     getLastPrediction = () => {

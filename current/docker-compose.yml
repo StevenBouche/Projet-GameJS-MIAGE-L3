@@ -1,0 +1,31 @@
+version: "3"
+services:
+
+    client-game:
+        container_name: client-game
+        build:
+            context: ./client
+            dockerfile: Dockerfile
+        image: client-game
+        expose:
+            - "3000"
+        ports:
+            - "3000:3000"
+        volumes:
+            - ./client:/client
+        links:
+            - server-game
+    server-game:
+        container_name: server-game
+        build:
+            context: ./client/src/server
+            dockerfile: Dockerfile
+        image: server-game
+        expose:
+            - "3001"
+        ports:
+            - "3001:3001"
+        volumes:
+            - ./client/src/server:/server
+
+    

@@ -20,7 +20,7 @@ class AnimationMenu {
                 speed: 2,
                 color: 'rgb(' + r + ',' + g + ',' + b + ')'
             }
-           while(this.collisionBool(value) == true){
+           while(this.collisionBool(value) === true){
             value = {
                 x: Math.floor(Math.random() * Math.floor(this.longueur)),
                 y: Math.floor(Math.random() * Math.floor(this.hauteur)),

@@ -15,7 +15,7 @@ class GameState {
 
     addState = (gameObject) => {
         let { t } = gameObject;
-        if(Object.keys(this.bufferState).length > 1000) {
+        if(Object.keys(this.bufferState).length > 200) {
             var elem =Object.keys(this.bufferState)[0];
             delete this.bufferState[elem];
         }
@@ -69,7 +69,7 @@ class GameState {
     update = () => {
  
         let input = this.getFirstInput();
-
+        
         if(input == undefined) return;
 
         // Pour tous les inputs qui sont inferieur au temps courant on recalcul
@@ -92,7 +92,14 @@ class GameState {
                 let newGame = this.bufferState[keyCurrent].clone();
 
                 // on applique l'input au joueur
-                newGame.players[input.idplayer].nextDirection = input.dir;
+             //   console.log(newGame.timePlayers)
+                if(newGame.players[input.idplayer] != undefined) newGame.players[input.idplayer].nextDirection = input.dir;
+                //ntp sync
+                if(newGame.timePlayers[input.idplayer] != undefined) {
+                    newGame.timePlayers[input.idplayer].ot = input.t;
+                    newGame.timePlayers[input.idplayer].rt = Date.now();
+                }
+
                 newGame.dt = dt;
                 newGame.t = input.t;
 
@@ -103,7 +110,13 @@ class GameState {
                 index++;
             } else {
                 let keyCurrent = Object.keys(this.bufferState)[index];
-                this.bufferState[keyCurrent].players[input.idplayer].nextDirection = input.dir;
+                let pla = this.bufferState[keyCurrent].players[input.idplayer];
+                if(pla != undefined ) this.bufferState[keyCurrent].players[input.idplayer].nextDirection = input.dir;
+                //ntp sync
+                if(this.bufferState[keyCurrent].timePlayers[input.idplayer] != undefined) {
+                    this.bufferState[keyCurrent].timePlayers[input.idplayer].ot = input.t;
+                    this.bufferState[keyCurrent].timePlayers[input.idplayer].rt = Date.now();
+                }
             }
 
           

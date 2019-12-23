@@ -18,9 +18,9 @@ class GameManager{
     }
 
     addPlayer = (socket, dataUser) => {
-        const {username,idskin} = dataUser;
+        const {username,idskin,t} = dataUser;
         console.log("Server add player : "+username);
-        this.game.addPlayer(socket, username, idskin);
+        this.game.addPlayer(socket, username, idskin, t);
     }
 
     removePlayer = (socket) => {
@@ -35,7 +35,7 @@ class GameManager{
     
     startGame = () => {
          //this.int = setInterval(this.game.update,1000/Constants.UI_REFRESH_HZ);
-         this.int = setInterval(this.updateState,1000/Constants.UI_REFRESH_HZ);
+         this.int = setInterval(this.updateState,1000/Constants.GAME_REFRESH_HZ);
     }
 
     updateState = () => {
@@ -78,7 +78,7 @@ class GameManager{
             clearInterval(this.int);
             this.stateGame.splice(0,this.stateGame.length);
             this.game = new Game();
-            this.int = setInterval(this.updateState,1000/Constants.UI_REFRESH_HZ);
+            this.int = setInterval(this.updateState,1000/Constants.GAME_REFRESH_HZ);
         }
     }
 }

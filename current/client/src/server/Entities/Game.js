@@ -1,7 +1,7 @@
 const {TYPECASE, MSG_TYPES, MAP_TILE, MAP_SIZE, UI_REFRESH_HZ} = require('../../shared/constants');
 const { Worker, MessageChannel } = require('worker_threads');
 const MatriceMap = require('./MatriceMap');
-const Player = require('./player');
+const Player = require('./Player');
 
 
 // TODO remonter les sockets dans le gameManager
@@ -13,6 +13,7 @@ class Game {
     this.sockets = [];
     this.players = [];
     this.tempInput = [];
+    this.timePlayers = [];
     //Initialisation de la matrice
     this.map = new MatriceMap();
 
@@ -23,6 +24,9 @@ class Game {
     this.runServiceMapPlayer({});
     
   }
+
+
+  //  THREAD  ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   runServiceMapPlayer = (workerData) => {
 
@@ -41,6 +45,49 @@ class Game {
     })
     //Envoi du port de communication au thread
     worker.postMessage({port: port2},[port2]);
+  }
+
+  //ACTION PLAYER////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  addPlayer = (socket, username, idskin, t) => {
+    //Save socket
+    this.sockets[socket.id] = socket;
+    var caseM = this.map.getRandomCaseMap(); // x & y  Generate a position to start this player at.
+    while (!this.map.isCaseEmpty(caseM.x, caseM.y)){ caseM = this.map.getRandomCaseMap();}
+    const xy = this.map.getXYCenterfromCase(caseM.x,caseM.y);
+    //Generate new Player 
+    this.players[socket.id] = new Player(socket.id, username, xy.x, xy.y,caseM.x,caseM.y, idskin);
+    //Et l'ajoute a la map
+    this.map.addSpawPlayer(this.players[socket.id]);
+    //for sync client server
+    if(this.timePlayers[socket.id] == undefined){
+      this.timePlayers[socket.id] = { tt:0, rt:0, ot:0};
+    }
+    this.timePlayers[socket.id].ot = t;
+    this.timePlayers[socket.id].rt = Date.now();
+  }
+
+  handleInput = (socket, dir) => {
+    //Update la direction du joueur 
+    if (this.players[socket.id]) this.players[socket.id].updateState(dir);// this.players[socket.id].updateState(dir);
+  }
+
+  //ACTION SERVER////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  removePlayer= (id) => {
+    delete this.sockets[id];
+    delete this.players[id];
+    delete this.timePlayers[id];
+  }
+
+  playerDie = (playerID) => {
+    const socket = this.sockets[playerID];
+    //Remove toutes les cases du player
+    this.map.delCaseOf(playerID);
+    // envoi un signal de game over au joueur
+    try{ socket.emit(MSG_TYPES.GAME_OVER); } catch(error){ console.log(error)}
+    //remove le joueur de la partie
+    this.removePlayer(playerID);
   }
 
   playerWin = () => {
@@ -64,38 +111,6 @@ class Game {
         this.players[id].score = score;
       }
     } 
-  }
-
-  addPlayer = (socket, username, idskin) => {
-    //Save socket
-    this.sockets[socket.id] = socket;
-    var caseM = this.map.getRandomCaseMap(); // x & y  Generate a position to start this player at.
-    while (!this.map.isCaseEmpty(caseM.x, caseM.y)){ caseM = this.map.getRandomCaseMap();}
-    const xy = this.map.getXYCenterfromCase(caseM.x,caseM.y);
-    //Generate new Player 
-    this.players[socket.id] = new Player(socket.id, username, xy.x, xy.y,caseM.x,caseM.y, idskin);
-    //Et l'ajoute a la map
-    this.map.addSpawPlayer(this.players[socket.id]);
-  }
-
-  removePlayer= (id) => {
-    delete this.sockets[id];
-    delete this.players[id];
-  }
-
-  playerDie = (playerID) => {
-    const socket = this.sockets[playerID];
-    //Remove toutes les cases du player
-    this.map.delCaseOf(playerID);
-    // envoi un signal de game over au joueur
-    try{ socket.emit(MSG_TYPES.GAME_OVER); } catch(error){ console.log(error)}
-    //remove le joueur de la partie
-    this.removePlayer(playerID);
-  }
-
-  handleInput = (socket, dir) => {
-    //Update la direction du joueur 
-    if (this.players[socket.id]) this.players[socket.id].updateState(dir);// this.players[socket.id].updateState(dir);
   }
 
   //Joueur passe sur une case vide 
@@ -123,7 +138,10 @@ class Game {
         player.setLastArea(true);
       }
     } // Sinon ajoute un chemin sur l'air d'un autre joueur 
-    else this.map.addPathOnArea(x,y,player);
+    else {
+      this.map.addPathOnArea(x,y,player);
+      player.setLastArea(false);
+    }
   }
 
   update = (dt,time) => { 
@@ -170,6 +188,9 @@ class Game {
 
   }
 
+
+  // UPDATE TO CLIENT 
+
   sendDatatoPlayer = () => {
     const leaderboard = this.getLeaderboard();
     Object.keys(this.players).forEach(playerID => { 
@@ -197,13 +218,16 @@ class Game {
     const nearbyPlayers = Object.values(this.players).filter(
       p => p !== player && p.distanceTo(player) <= MAP_SIZE,
     );
-
+    
+    this.timePlayers[player.id].tt = Date.now();
+   
     //Creer unse structure pour l'envoi au client
     return {
       t: Date.now(),
       me: player.serializeForUpdate(),
       map: player.map,
       minimap: this.map.getMiniMap(),
+      playertime: this.timePlayers[player.id],
       others: nearbyPlayers.map(p => p.serializeForUpdate()),
       leaderboard,
     };
