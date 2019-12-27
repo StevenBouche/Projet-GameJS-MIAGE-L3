@@ -65,7 +65,7 @@ module.exports = class MatriceMap {
             let element = this.getElementMap(x,y);
             if(element != undefined) {
 
-                if( // TODO Simplification condition
+                if( // TODO Simplification condition TODO MANQUE MY PATH SUR AREA DE TEMPS A AUTRE
                     (element.type === Constants.TYPECASE.PATH && element.idPlayer === playerID) ||
                     (element.type === Constants.TYPECASE.AREA && element.idPlayer === playerID && element.path === undefined)) {
                     this.hashMap.delete(key.content);      
@@ -214,6 +214,18 @@ module.exports = class MatriceMap {
 
            elem = tabY.find((element) => {return element.x == tabX[i].x && element.y == tabX[i].y});
            if(elem != undefined) this.setCaseOfMap(tabX[i].x,tabX[i].y,value);
+       }
+
+       for(i = 0; i < taby.length; i++){
+
+        var value = {
+            color: player.couleur,
+            type: Constants.TYPECASE.AREA,
+            idPlayer: player.id
+        };
+
+           elem = tabX.find((element) => {return element.x == tabY[i].x && element.y == tabY[i].y});
+           if(elem != undefined) this.setCaseOfMap(tabY[i].x,tabY[i].y,value);
        }
   
     }

@@ -31,7 +31,6 @@ class KeyBoardListener {
     notifyInput(state){
         if(!equal(this.state,state)){
             this.state = state;
-            console.log(state)
             let data = {
                 t: Date.now(),
                 dir: state

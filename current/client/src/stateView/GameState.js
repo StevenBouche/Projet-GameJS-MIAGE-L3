@@ -22,34 +22,32 @@ const setMiniMapHidden = (bool, miniMap) => {
 class initGame{
 
     start = (gameState) => {
-        console.log("init game")
-        gameState.audio.pause();
+        console.log("before game")
         gameState.viewManager.stopRendering();
-        setLeaderboardHidden(true,gameState.leaderboard);
         setPlaymenuHidden(false,gameState.playmenu);
-        setFPSHidden(true,gameState.fpsdiv);
-        setMiniMapHidden(true,gameState.miniMap);
-        document.getElementById("connexion-server").classList.add("hidden");
     }
 
-    next = () => {
+    next = (gameState) => {
+        setPlaymenuHidden(true,gameState.playmenu);
         return new startGame();
     }
 }
 
 
 class startGame{
-
+    
      start = (gameState) => {
-        
+        console.log("in game")
         gameState.viewManager.startRendering();
         setLeaderboardHidden(false,gameState.leaderboard);
-        setPlaymenuHidden(true,gameState.playmenu);
         setFPSHidden(false,gameState.fpsdiv);
         setMiniMapHidden(false,gameState.miniMap);
     }
 
-    next = () => {
+    next = (gameState) => {
+        setLeaderboardHidden(true,gameState.leaderboard);
+        setFPSHidden(true,gameState.fpsdiv);
+        setMiniMapHidden(true,gameState.miniMap);
         return new initGame();
     }
 }
@@ -57,7 +55,6 @@ class startGame{
 class disconnectState {
 
     start = (gameState) => {
-        // gameState.audio.play();
          gameState.viewManager.stopRendering();
          setLeaderboardHidden(true,gameState.leaderboard);
          setPlaymenuHidden(true,gameState.playmenu);
@@ -66,7 +63,7 @@ class disconnectState {
          this.disconnect();
      }
  
-     next = () => {
+     next = (gameState) => {
          return new connectState();
      }
 
@@ -80,10 +77,11 @@ class disconnectState {
 class connectState {
     
     start = (gameState) => {
+        console.log("connect state")
          document.getElementById("connexion-server").classList.remove("hidden");
      }
  
-     next = () => {
+     next = (gameState) => {
          document.getElementById("connexion-server").classList.add("hidden");
          return new loadState();
      }
@@ -94,10 +92,11 @@ class connectState {
 class loadState {
     
     start = (gameState) => {
+        console.log("load state")
          document.getElementById("load-server").classList.remove("hidden");
      }
  
-     next = () => {
+     next = (gameState) => {
          document.getElementById("load-server").classList.add("hidden");
          return new initGame();
      }
@@ -119,9 +118,6 @@ export default class GameState {
         this.fpsdiv = document.getElementById('fps');
         this.miniMap = document.getElementById('mini-map');
 
-        this.audio = new Audio("bimbam.mp3");
-        //this.audio = document.getElementById('audioPlayer');
-
         this.state.start(this)
         this.playbutton.onclick = () => { 
             this.viewManager.username = this.usernameInput.value;
@@ -133,7 +129,7 @@ export default class GameState {
     }
 
     nextState = () => {
-        this.state = this.state.next();
+        this.state = this.state.next(this);
         this.start();
     }
 
@@ -147,6 +143,7 @@ export default class GameState {
     }
 
     connect = () => {
+        console.log("CONNECT STATE")
         this.nextState();
     }
 

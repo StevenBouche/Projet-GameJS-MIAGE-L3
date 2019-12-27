@@ -15,43 +15,44 @@ class GamePrediction {
         this.player = new Player(id, username, x, y, xCase, yCase, idskin);
     }
 
-    update = () => {
-        const now = Date.now();
+    update = (currentTimeServer) => {
+        const now = currentTimeServer;//Date.now();
         const dt = (now - this.lastUpdateTime) / 1000;
         this.lastUpdateTime = now;
 
         if(this.player !== undefined){
             this.player.update(dt);
+            //Buffer de prediction client TODO ?
             if(this.predictionPlayer.length > 100) this.predictionPlayer.shift();
             this.predictionPlayer.push(this.player.serializeForUpdate());
-        
-            
-           // console.log(this.predictionPlayer)
         }
-        
     }
 
-    setCurrentPlayerFromServer = (me,t) => {
-       // console.log(me)
+    setCurrentPlayerFromServer = (me,timeStateServer,currentTimeServer) => {
+
+        //POUR LE RECALCULE PRENDRE EN COMPTE LE TEMPS SERVER AVEC CURRENT TIME SERVER
+
+        //Si le joueur est init 
         if(this.player !== undefined){
             //this.lastUpdateTime = t;
+            
             if (this.predictionPlayer[0] === undefined) return ;
 
             
             if(this.predictionPlayer[0].x !== me.x || this.predictionPlayer[0].y !== me.y){
-               // console.log("RECALCULE")
+               
                 this.player.x = me.x;
                 this.player.y = me.y;
                 this.player.direction = me.direction;
                 this.player.nextDirection = me.nextdirection;
                 this.player.nextCase = me.nextcase;
                 this.player.color = me.color;
+
+                //UPDATE STATE PLAYER JUSQU A LA TRAME ACTUELLE
                 for(let i =0; i+1 < this.predictionPlayer.lenght; i++){
-                    
                     let pre = this.predictionPlayer[i+1];
                     this.player.update(pre.dt);
                     this.predictionPlayer[i+1] = this.player.serializeForUpdate();
-                   // console.log(this.predictionPlayer[i+1])
                 }
                 this.predictionPlayer.shift();
             }

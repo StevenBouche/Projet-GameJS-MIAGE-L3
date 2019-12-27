@@ -5,6 +5,9 @@ const GameManager = require('./Manager/GameManager');
 var cluster = require('cluster');
 let winston = require('winston');
 
+
+let tabWorker = [];
+
 //LOGGER
 let logger = winston.createLogger({
   level: 'info',
@@ -18,7 +21,23 @@ let logger = winston.createLogger({
   transports: [new winston.transports.Console(),new winston.transports.File({filename: './log/'+Date.now()+'-app.log'})]
 });
 
+let port = 3001;
+//CLUSTER HANDLE PROCESS SERVER AND RESTART
+if (cluster.isMaster) {
 
+  tabWorker[port] = cluster.fork();
+  tabWorker[port].on('exit', function(worker, code, signal) {
+    tabWorker[port] = cluster.fork();
+  });
+}
+
+if (cluster.isWorker) {
+  const App = require('./clusterGame');
+  App.port = port;
+  App.start();
+}
+
+/*
 //LOAD SERVER
 const loadServer = () => {
   const app = express();
@@ -79,20 +98,7 @@ const loadServer = () => {
     //Send some notification about the error  
     process.exit(1);
   });
-}
-
-//CLUSTER HANDLE PROCESS SERVER AND RESTART
-if (cluster.isMaster) {
-  cluster.fork();
-
-  cluster.on('exit', function(worker, code, signal) {
-    cluster.fork();
-  });
-}
-
-if (cluster.isWorker) {
-  loadServer();
-}
+}*/
 
 
 

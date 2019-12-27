@@ -7,6 +7,7 @@ var ip = process.env.GAME_HOSTNAME || Constants.IP_SERVER
 
 class NetworkManager {
   constructor(game) {
+
     this.socket = io(`ws://${ip}:${port}`, { reconnection: false });
     this.state = {};
     this.timestampPing = undefined;
@@ -17,33 +18,32 @@ class NetworkManager {
     this.ecart = 0;
     this.ping = 0;
     this.majEcart = false;
-    document.getElementById("connexion-server").classList.remove("hidden");
    
+    //Promesse pour la connection 
     this.connectedPromise = new Promise(resolve => {
+
+      //A la connection de la socket
       this.socket.on("connect", () => {
+
         console.log("connect")
+
+          //Attente de la reception du ntp pour la sync server
           this.socket.on('ntpsyncclient', (data) => {
-         //   console.log('receive ntp from server')
+              //RT  T'1 TT  T'2 OT  T1
               let t2 = Date.now();
               let tp1 = data.rt;
               let tp2 = data.tt;
               let t1 = data.ot;
+              //Calcule de l'ecart de temps et ping entre le server et le client
               this.ecart = Math.round((tp1+tp2)/2 - (t1+t2)/2);
               this.ping = Math.round((t2-t1)-(tp2-tp1));
-
-
-            //  console.log(ecart)
-
-              //RT  T'1
-              //TT  T'2
-              //OT  T1
-
-              this.game.connectFromServer();
+              //Inscription des actions a la socket pour le user
               this.connect(game.onGameOver);
-              //setInterval(this.ping, 20000);
+              //Callback vers le component game pour l'avertir que nous somme connecter 
+              this.game.connectFromServer();
               resolve();
-
           })
+          //Qui normalement declenche ntpsyncclient juste au dessus 
           this.socket.emit('ntpsync', {tt:Date.now()});
       });
     });

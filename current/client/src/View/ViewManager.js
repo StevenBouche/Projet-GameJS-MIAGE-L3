@@ -99,7 +99,7 @@ class ViewManager{
         var tdScore = document.createElement('td');
 
         tdRank.innerText = cpt;
-        tdName.innerText = elem.username;
+        tdName.innerText = elem.username.substr(0, 12);
         tdScore.innerText = elem.score;
         
         tr.appendChild(tdRank);
@@ -139,11 +139,14 @@ class ViewManager{
           document.getElementById("mini-map").style.width = (Constants.MAP_SIZE/Constants.MAP_TILE)*Constants.MINI_MAP_SIZE +"px";
           this.canvasMiniMap.height = (Constants.MAP_SIZE/Constants.MAP_TILE)*Constants.MINI_MAP_SIZE;
           this.canvasMiniMap.width = (Constants.MAP_SIZE/Constants.MAP_TILE)*Constants.MINI_MAP_SIZE;
-          this.animMenu = undefined;
-       //   this.animMenu = new AnimationMenu(this.canvas.width,this.canvas.height);
+          
+        //   this.animMenu = new AnimationMenu(this.canvas.width,this.canvas.height);
         //  if (this.animMenu !== undefined ) 
           this.offscreenSet = true;
         }
+
+        //reset de l'animation du menu 
+        this.animMenu = undefined;
     }
 
     renderBackground() {

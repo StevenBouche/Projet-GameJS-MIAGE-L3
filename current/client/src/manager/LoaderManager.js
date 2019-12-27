@@ -1,9 +1,10 @@
 import {Howl} from 'howler';
+import Constants from '../shared/constants'
 
 var assetsToLoadURLs = {
-    shrek: { url: 'http://137.74.199.200:3000/sh.png' },
-    musiquegame: { url: 'http://137.74.199.200:3000/musiqueGame.mp3', buffer: false, loop: false, volume: 0.5 },
-    shrek8bit: { url: 'http://137.74.199.200:3000/shrek8bit.mp3', buffer: false, loop: false, volume: 0.5 }
+    shrek: { url: 'http://localhost:3000/sh.png' },
+    musiquegame: { url: 'http://localhost:3000/musiqueGame.mp3', buffer: false, loop: false, volume: 0.5 },
+    shrek8bit: { url: 'http://localhost:3000/shrek8bit.mp3', buffer: false, loop: false, volume: 0.5 }
 };
 
 function loadAssets(callback,tabAsset) {

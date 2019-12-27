@@ -81,13 +81,13 @@ class Game {
   }
 
   playerDie = (playerID) => {
+    this.map.delCaseOf(playerID); //Remove toutes les cases du player
     const socket = this.sockets[playerID];
-    //Remove toutes les cases du player
-    this.map.delCaseOf(playerID);
     // envoi un signal de game over au joueur
-    try{ socket.emit(MSG_TYPES.GAME_OVER); } catch(error){ console.log(error)}
-    //remove le joueur de la partie
-    this.removePlayer(playerID);
+    if(socket != undefined){
+      try{ socket.emit(MSG_TYPES.GAME_OVER); } catch(error){ console.log(error)}
+    }
+    this.removePlayer(playerID);     //remove le joueur de la partie
   }
 
   playerWin = () => {
@@ -215,9 +215,9 @@ class Game {
   createUpdate = (player, leaderboard) => { 
 
     // TODO , retourne un tableau des autres joueur qui sont visible par le joueur 
-    const nearbyPlayers = Object.values(this.players).filter(
-      p => p !== player && p.distanceTo(player) <= MAP_SIZE,
-    );
+    const nearbyPlayers = Object.values(this.players)
+    .filter(p => p !== player/* && p.distanceTo(player) <= MAP_SIZE,*/)
+    .map(p => p.serializeForUpdate());
     
     this.timePlayers[player.id].tt = Date.now();
    
@@ -228,7 +228,7 @@ class Game {
       map: player.map,
       minimap: this.map.getMiniMap(),
       playertime: this.timePlayers[player.id],
-      others: nearbyPlayers.map(p => p.serializeForUpdate()),
+      others: nearbyPlayers,
       leaderboard,
     };
   }

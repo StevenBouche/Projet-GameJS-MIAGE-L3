@@ -1,5 +1,5 @@
 module.exports = Object.freeze({
-  IP_SERVER: "127.0.0.1",
+  IP_SERVER: "localhost",
   PLAYER_RADIUS: 20,
   PLAYER_MAX_HP: 100,
   PLAYER_SPEED: 300,

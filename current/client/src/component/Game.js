@@ -30,9 +30,15 @@ export default class Game extends Component {
         this.setState({gamePrediction: new GamePrediction()});
     }
 
+    // TODO probleme quand assetHaveLoad finish passe l etape de connexion 
     assetHaveLoaded = () => {
         this.state.stateView.nextState();
     }
+
+    connectFromServer = () => {
+        this.state.stateView.connect();
+    }
+    /////////////////////////////////
 
     startNetwork = (userInput) => {
         this.state.networkManager.play({username: userInput, idskin: this.state.viewManager.skinIndex});
@@ -43,10 +49,6 @@ export default class Game extends Component {
         this.state.stateView.disconnect();
         clearInterval(this.state.interval);
         this.setState({interval: undefined});
-    }
-
-    connectFromServer = () => {
-        this.state.stateView.connect();
     }
 
     onGameOver = () => {
@@ -63,12 +65,14 @@ export default class Game extends Component {
     }
 
     updateStateGame(state){
-        this.state.gamePrediction.setCurrentPlayerFromServer(state.me,state.t);
+        let currentTimeServer = this.state.networkManager.currentServerTime();
+        this.state.gamePrediction.setCurrentPlayerFromServer(state.me,state.t,currentTimeServer);
         this.state.viewManager.setCurrentGameState(state);
     }
 
     updateGame = () => {
-        this.state.gamePrediction.update();
+        let currentTimeServer = this.state.networkManager.currentServerTime();
+        this.state.gamePrediction.update(currentTimeServer);
        // let time = this.state.gamePrediction.lastUpdateTime;
         let player = this.state.gamePrediction.getLastPrediction();
         //console.log(player)
@@ -84,7 +88,7 @@ export default class Game extends Component {
             <div>
                 
                <canvas id="game-canvas"></canvas>
-               <div id="mini-map">
+               <div id="mini-map" className="hidden">
                     <canvas id="mini-map-canvas" ></canvas>
                </div>
                 <div id="play-menu" className="hidden">
@@ -141,7 +145,7 @@ export default class Game extends Component {
                     </div>
                 </div>
                 
-                <div id="fps" >
+                <div id="fps" className="hidden">
                 <table id='leaderboardTable'>
                         <thead>
                             <tr>
@@ -153,7 +157,7 @@ export default class Game extends Component {
                         </tbody>
                     </table>
                 </div>
-                <audio id="audioPlayer" src=""></audio>
+              
             </div>
         );
     }
